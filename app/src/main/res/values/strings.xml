@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Matarpontun</string>
+    <string name="ward_login">Ward Login</string>
+    <string name="ward_name">Ward Name</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="error_invalid_credentials">Invalid credentials</string>
+    <string name="error_empty_fields">Please fill all fields</string>
+    <string name="welcome_message">Welcome</string>
 </resources>
