@@ -24,6 +24,9 @@
         <activity
             android:name=".ui.ward.WardActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.patients.PatientListActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
