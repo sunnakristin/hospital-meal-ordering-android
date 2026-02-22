@@ -2,6 +2,7 @@ package com.example.matarpontun.ui.patients
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.ProgressBar
@@ -26,6 +27,8 @@ class PatientListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
+
+        val btnBack = findViewById<Button>(R.id.btnBack)
 
         val patientRepo = MockPatientRepository()
         val patientService = PatientService(patientRepo)
@@ -74,6 +77,10 @@ class PatientListActivity : AppCompatActivity() {
             }
         }
         viewModel.loadPatients(wardId)
+
+        btnBack.setOnClickListener {
+            finish()   // goes back to previous screen
+        }
     }
 
     private fun observe() {

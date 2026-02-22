@@ -11,4 +11,5 @@
     <string name="patient_name">Patient Name</string>
     <string name="patient_id">Patient ID</string>
     <string name="order">Order</string>
+    <string name="back">Back</string>
 </resources>
