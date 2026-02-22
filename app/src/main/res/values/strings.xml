@@ -7,4 +7,8 @@
     <string name="error_invalid_credentials">Invalid credentials</string>
     <string name="error_empty_fields">Please fill all fields</string>
     <string name="welcome_message">Welcome</string>
+    <string name="patient_list">Patient List</string>
+    <string name="patient_name">Patient Name</string>
+    <string name="patient_id">Patient ID</string>
+    <string name="order">Order</string>
 </resources>

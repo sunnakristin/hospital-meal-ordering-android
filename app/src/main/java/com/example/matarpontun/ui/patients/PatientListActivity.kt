@@ -2,38 +2,77 @@ package com.example.matarpontun.ui.patients
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.ListView
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.matarpontun.R
+import com.example.matarpontun.data.repository.MockDailyOrderRepository
 import com.example.matarpontun.data.repository.MockPatientRepository
+import com.example.matarpontun.domain.service.DailyOrderService
 import com.example.matarpontun.domain.service.PatientService
+import com.example.matarpontun.ui.patients.PatientListViewModel.PatientListUiState
+
 import kotlinx.coroutines.launch
 
 class PatientListActivity : AppCompatActivity() {
-
     private lateinit var viewModel: PatientListViewModel
-
-    private lateinit var listView: ListView
+    private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
+    private lateinit var adapter: PatientListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
 
-        val repo = MockPatientRepository()
-        val service = PatientService(repo)
-        viewModel = PatientListViewModel(service)
+        val patientRepo = MockPatientRepository()
+        val patientService = PatientService(patientRepo)
 
-        listView = findViewById(R.id.listPatients)
+        val orderRepo = MockDailyOrderRepository()
+        val orderService = DailyOrderService(orderRepo)
+
+        viewModel = PatientListViewModel(patientService, orderService)
+
+        recyclerView = findViewById(R.id.recyclerPatients)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
         progressBar = findViewById(R.id.progressBar)
+
+        // Initialize the adapter with an empty list
+        adapter = PatientListAdapter(
+            patients = emptyList(),
+            orderedPatientIds = emptySet(),
+            orderingPatientIds = emptySet(),
+            onOrderClicked = { patient ->
+                viewModel.orderForPatient(patient)
+            }
+        )
+        recyclerView.adapter = adapter
 
         val wardId = intent.getLongExtra("WARD_ID", -1)
 
         observe()
+
+        lifecycleScope.launch {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is PatientListViewModel.PatientListEvent.ShowToast -> {
+                        Toast.makeText(
+                            this@PatientListActivity,
+                            event.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    is PatientListViewModel.PatientListEvent.NavigateToOrderDetails -> {
+                        // Later: start OrderDetailsActivity
+                        // For now we show toast
+                    }
+                }
+            }
+        }
         viewModel.loadPatients(wardId)
     }
 
@@ -49,16 +88,7 @@ class PatientListActivity : AppCompatActivity() {
 
                     is PatientListUiState.Success -> {
                         progressBar.visibility = View.GONE
-
-                        val rows = state.patients.map { p ->
-                            "${p.name} — Room ${p.room}"
-                        }
-
-                        listView.adapter = ArrayAdapter(
-                            this@PatientListActivity,
-                            android.R.layout.simple_list_item_1,
-                            rows
-                        )
+                        adapter.updateData(state.patients, state.orderedPatientIds, state.orderingPatientIds)
                     }
 
                     is PatientListUiState.Error -> {
@@ -69,8 +99,13 @@ class PatientListActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
+
+                    else -> {
+                        // Handle other states if needed
+                    }
                 }
             }
         }
     }
 }
+
