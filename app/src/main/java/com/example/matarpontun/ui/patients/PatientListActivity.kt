@@ -99,10 +99,6 @@ class PatientListActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-
-                    else -> {
-                        // Handle other states if needed
-                    }
                 }
             }
         }

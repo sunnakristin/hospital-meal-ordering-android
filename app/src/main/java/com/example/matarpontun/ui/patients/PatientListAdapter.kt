@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.matarpontun.R
 import com.example.matarpontun.domain.model.Patient
@@ -25,10 +26,22 @@ class PatientListAdapter(
         newOrderedIds: Set<Long>,
         newOrderingIds: Set<Long>
     ) {
+        val diffCallback = PatientDiffCallback(
+            oldPatients = patients,
+            newPatients = newPatients,
+            oldOrdered = orderedPatientIds,
+            newOrdered = newOrderedIds,
+            oldOrdering = orderingPatientIds,
+            newOrdering = newOrderingIds
+        )
+
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
         patients = newPatients
         orderedPatientIds = newOrderedIds
         orderingPatientIds = newOrderingIds
-        notifyDataSetChanged()
+
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PatientViewHolder {
@@ -61,4 +74,40 @@ class PatientListAdapter(
     }
 
     override fun getItemCount(): Int = patients.size
+}
+
+class PatientDiffCallback(
+    private val oldPatients: List<Patient>,
+    private val newPatients: List<Patient>,
+    private val oldOrdered: Set<Long>,
+    private val newOrdered: Set<Long>,
+    private val oldOrdering: Set<Long>,
+    private val newOrdering: Set<Long>
+) : DiffUtil.Callback() {
+
+    override fun getOldListSize(): Int = oldPatients.size
+    override fun getNewListSize(): Int = newPatients.size
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return oldPatients[oldItemPosition].patientId ==
+                newPatients[newItemPosition].patientId
+    }
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+
+        val oldPatient = oldPatients[oldItemPosition]
+        val newPatient = newPatients[newItemPosition]
+
+        val sameBasicData = oldPatient == newPatient
+
+        val sameOrderState =
+            (oldPatient.patientId in oldOrdered) ==
+                    (newPatient.patientId in newOrdered)
+
+        val sameOrderingState =
+            (oldPatient.patientId in oldOrdering) ==
+                    (newPatient.patientId in newOrdering)
+
+        return sameBasicData && sameOrderState && sameOrderingState
+    }
 }
