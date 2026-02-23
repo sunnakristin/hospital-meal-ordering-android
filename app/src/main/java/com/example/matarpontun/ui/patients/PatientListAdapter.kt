@@ -5,43 +5,36 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.matarpontun.R
-import com.example.matarpontun.domain.model.Patient
 
 class PatientListAdapter(
-    private var patients: List<Patient>,
-    private var orderedPatientIds: Set<Long>,
-    private var orderingPatientIds: Set<Long>,
-    private val onOrderClicked: (Patient) -> Unit
+    private val onOrderClicked: (Long) -> Unit,
+    private val onToggleClicked: (Long) -> Unit
 ) : RecyclerView.Adapter<PatientListAdapter.PatientViewHolder>() {
-    class PatientViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvInfo: TextView = view.findViewById(R.id.tvPatientInfo)
-        val btnOrder: Button = view.findViewById(R.id.btnOrder)
+
+    private var rows: List<PatientListViewModel.PatientRowUi> = emptyList()
+
+    fun submitRows(newRows: List<PatientListViewModel.PatientRowUi>) {
+        rows = newRows
+        notifyDataSetChanged()
     }
 
-    fun updateData(
-        newPatients: List<Patient>,
-        newOrderedIds: Set<Long>,
-        newOrderingIds: Set<Long>
-    ) {
-        val diffCallback = PatientDiffCallback(
-            oldPatients = patients,
-            newPatients = newPatients,
-            oldOrdered = orderedPatientIds,
-            newOrdered = newOrderedIds,
-            oldOrdering = orderingPatientIds,
-            newOrdering = newOrderingIds
-        )
+    class PatientViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvName: TextView = view.findViewById(R.id.tvName)
+        val tvFoodType: TextView = view.findViewById(R.id.tvFoodType)
+        val tvStatus: TextView = view.findViewById(R.id.tvStatus)
 
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        val btnOrder: Button = view.findViewById(R.id.btnOrder)
+        val btnToggle: Button = view.findViewById(R.id.btnToggle)
 
-        patients = newPatients
-        orderedPatientIds = newOrderedIds
-        orderingPatientIds = newOrderingIds
+        val detailsContainer: View = view.findViewById(R.id.detailsContainer)
 
-        diffResult.dispatchUpdatesTo(this)
+        val tvBreakfast: TextView = view.findViewById(R.id.tvBreakfast)
+        val tvLunch: TextView = view.findViewById(R.id.tvLunch)
+        val tvAfternoonSnack: TextView = view.findViewById(R.id.tvAfternoonSnack)
+        val tvDinner: TextView = view.findViewById(R.id.tvDinner)
+        val tvNightSnack: TextView = view.findViewById(R.id.tvNightSnack)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PatientViewHolder {
@@ -51,63 +44,55 @@ class PatientListAdapter(
     }
 
     override fun onBindViewHolder(holder: PatientViewHolder, position: Int) {
-        val patient = patients[position]
 
-        val isOrdered = patient.patientId in orderedPatientIds
-        val isOrdering = patient.patientId in orderingPatientIds
+        val row = rows[position]
 
-        holder.tvInfo.text = "${patient.name} — Room ${patient.room}"
+        holder.tvName.text = row.name
+        holder.tvFoodType.text = "Food Type: ${row.foodTypeName}"
+        holder.tvStatus.text = "Status: ${row.statusText}"
 
-        holder.btnOrder.text = when {
-            isOrdered -> "ORDERED"
-            isOrdering -> "ORDERING..."
-            else -> "ORDER"
-        }
+        holder.btnOrder.text = if (row.hasOrder) "ORDERED" else "ORDER"
+        holder.btnOrder.isEnabled = !row.hasOrder
 
-        holder.btnOrder.isEnabled = !isOrdered && !isOrdering
+        holder.detailsContainer.visibility =
+            if (row.expanded) View.VISIBLE else View.GONE
+
+        holder.btnToggle.text =
+            if (row.expanded) "Hide Details ▲" else "Show Details ▼"
 
         holder.btnOrder.setOnClickListener {
-            if (!isOrdered && !isOrdering) {
-                onOrderClicked(patient)
+            if (!row.hasOrder) {
+                onOrderClicked(row.patientId)
+            }
+        }
+
+        holder.btnToggle.setOnClickListener {
+            onToggleClicked(row.patientId)
+        }
+
+        if (row.hasOrder) {
+            holder.tvBreakfast.text = buildString {
+                append("Breakfast: ")
+                append(row.breakfast ?: "-")
+            }
+            holder.tvLunch.text = buildString {
+                append("Lunch: ")
+                append(row.lunch ?: "-")
+            }
+            holder.tvAfternoonSnack.text = buildString {
+                append("Afternoon snack: ")
+                append(row.afternoonSnack ?: "-")
+            }
+            holder.tvDinner.text = buildString {
+                append("Dinner: ")
+                append(row.dinner ?: "-")
+            }
+            holder.tvNightSnack.text = buildString {
+                append("Night snack: ")
+                append(row.nightSnack ?: "-")
             }
         }
     }
 
-    override fun getItemCount(): Int = patients.size
-}
-
-class PatientDiffCallback(
-    private val oldPatients: List<Patient>,
-    private val newPatients: List<Patient>,
-    private val oldOrdered: Set<Long>,
-    private val newOrdered: Set<Long>,
-    private val oldOrdering: Set<Long>,
-    private val newOrdering: Set<Long>
-) : DiffUtil.Callback() {
-
-    override fun getOldListSize(): Int = oldPatients.size
-    override fun getNewListSize(): Int = newPatients.size
-
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldPatients[oldItemPosition].patientId ==
-                newPatients[newItemPosition].patientId
-    }
-
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-
-        val oldPatient = oldPatients[oldItemPosition]
-        val newPatient = newPatients[newItemPosition]
-
-        val sameBasicData = oldPatient == newPatient
-
-        val sameOrderState =
-            (oldPatient.patientId in oldOrdered) ==
-                    (newPatient.patientId in newOrdered)
-
-        val sameOrderingState =
-            (oldPatient.patientId in oldOrdering) ==
-                    (newPatient.patientId in newOrdering)
-
-        return sameBasicData && sameOrderState && sameOrderingState
-    }
+    override fun getItemCount(): Int = rows.size
 }

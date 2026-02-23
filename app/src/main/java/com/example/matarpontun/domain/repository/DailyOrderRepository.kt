@@ -8,4 +8,8 @@ interface DailyOrderRepository {
         patientId: Long,
         foodType: FoodType
     ): Result<DailyOrder>
+
+    suspend fun getDailyOrdersForWard(
+        wardId: Long
+    ): Result<List<DailyOrder>>
 }

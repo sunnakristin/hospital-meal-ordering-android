@@ -24,6 +24,12 @@ class PatientListActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var adapter: PatientListAdapter
 
+    // singleton container for repositories and services - now order survivies navigation while app is running
+    object AppContainer {
+        val dailyOrderRepository = MockDailyOrderRepository()
+        val dailyOrderService = DailyOrderService(dailyOrderRepository)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
@@ -33,25 +39,25 @@ class PatientListActivity : AppCompatActivity() {
         val patientRepo = MockPatientRepository()
         val patientService = PatientService(patientRepo)
 
-        val orderRepo = MockDailyOrderRepository()
-        val orderService = DailyOrderService(orderRepo)
-
-        viewModel = PatientListViewModel(patientService, orderService)
+        viewModel = PatientListViewModel(
+            patientService,
+            AppContainer.dailyOrderService
+        )
 
         recyclerView = findViewById(R.id.recyclerPatients)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         progressBar = findViewById(R.id.progressBar)
 
-        // Initialize the adapter with an empty list
         adapter = PatientListAdapter(
-            patients = emptyList(),
-            orderedPatientIds = emptySet(),
-            orderingPatientIds = emptySet(),
-            onOrderClicked = { patient ->
-                viewModel.orderForPatient(patient)
+            onOrderClicked = { patientId ->
+                viewModel.orderForPatient(patientId)
+            },
+            onToggleClicked = { patientId ->
+                viewModel.toggleExpand(patientId)
             }
         )
+
         recyclerView.adapter = adapter
 
         val wardId = intent.getLongExtra("WARD_ID", -1)
@@ -95,8 +101,7 @@ class PatientListActivity : AppCompatActivity() {
 
                     is PatientListUiState.Success -> {
                         progressBar.visibility = View.GONE
-                        adapter.updateData(state.patients, state.orderedPatientIds, state.orderingPatientIds)
-                    }
+                        adapter.submitRows(state.rows)                    }
 
                     is PatientListUiState.Error -> {
                         progressBar.visibility = View.GONE

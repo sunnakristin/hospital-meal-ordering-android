@@ -19,4 +19,11 @@ class DailyOrderService(
 
         return repository.createOrderForPatient(patientId, foodType)
     }
+
+    suspend fun getDailyOrdersForWard(
+        wardId: Long
+    ): Result<List<DailyOrder>> {
+
+        return repository.getDailyOrdersForWard(wardId)
+    }
 }

@@ -13,6 +13,8 @@ import kotlin.random.Random
 
 class MockDailyOrderRepository : DailyOrderRepository {
 
+    private val ordersByWard: MutableMap<Long, MutableMap<Long, DailyOrder>> = mutableMapOf()
+
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun createOrderForPatient(
         patientId: Long,
@@ -54,10 +56,24 @@ class MockDailyOrderRepository : DailyOrderRepository {
                 nightSnack = menu.nightSnack
             )
 
+            val wardId = 1L
+
+            val wardOrders = ordersByWard.getOrPut(wardId) { mutableMapOf() }
+            wardOrders[patientId] = order
+
             Result.success(order)
 
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun getDailyOrdersForWard(
+        wardId: Long
+    ): Result<List<DailyOrder>> {
+
+        val wardOrders = ordersByWard[wardId] ?: emptyMap()
+
+        return Result.success(wardOrders.values.toList())
     }
 }

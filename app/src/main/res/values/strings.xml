@@ -12,4 +12,5 @@
     <string name="patient_id">Patient ID</string>
     <string name="order">Order</string>
     <string name="back">Back</string>
+    <string name="show_details">Show Details ▼</string>
 </resources>

@@ -18,59 +18,101 @@ class PatientListViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PatientListUiState>(PatientListUiState.Idle)
+
+    private var expandedIds: Set<Long> = emptySet()
+    private var patients: List<Patient> = emptyList()
+    private var todaysOrders: Map<Long, DailyOrder> = emptyMap()
     val uiState: StateFlow<PatientListUiState> = _uiState
 
     fun loadPatients(wardId: Long) {
         _uiState.value = PatientListUiState.Loading
 
         viewModelScope.launch {
-            val result = patientService.getPatientsByWard(wardId)
-            _uiState.value = result.fold(
-                onSuccess = { patients -> PatientListUiState.Success(patients) },
-                onFailure = { error -> PatientListUiState.Error(error.message ?: "Unknown error") }
-            )
+
+            val patientResult = patientService.getPatientsByWard(wardId)
+            val orderResult = dailyOrderService.getDailyOrdersForWard(wardId) // must exist
+
+            patientResult.onSuccess {
+                patients = it
+            }.onFailure {
+                _uiState.value = PatientListUiState.Error(it.message ?: "Error loading patients")
+                return@launch
+            }
+
+            orderResult.onSuccess {
+                todaysOrders = it.associateBy { order -> order.patient.patientId }
+            }.onFailure {
+                // If orders fail, still show patients
+                todaysOrders = emptyMap()
+            }
+
+            rebuildUi()
         }
     }
 
-    fun orderForPatient(patient: Patient) {
-        val current = _uiState.value
-        if (current !is PatientListUiState.Success) return
-
-        // If already ordered or already ordering, ignore click
-        if (patient.patientId in current.orderedPatientIds) return
-        if (patient.patientId in current.orderingPatientIds) return
-
-        // Mark as ORDERING immediately
-        _uiState.value = current.copy(
-            orderingPatientIds = current.orderingPatientIds + patient.patientId
-        )
+    fun orderForPatient(patientId: Long) {
 
         viewModelScope.launch {
-            val result = dailyOrderService.createOrderForPatient(patient.patientId, patient.foodType)
 
-            result.fold(
-                onSuccess = { order ->
-                    val latest = _uiState.value
-                    if (latest is PatientListUiState.Success) {
-                        _uiState.value = latest.copy(
-                            orderingPatientIds = latest.orderingPatientIds - patient.patientId,
-                            orderedPatientIds = latest.orderedPatientIds + patient.patientId
-                        )
-                    }
-                    _events.emit(PatientListEvent.ShowToast("Order created for ${patient.name}"))
-                },
-                onFailure = { error ->
-                    val latest = _uiState.value
-                    if (latest is PatientListUiState.Success) {
-                        _uiState.value = latest.copy(
-                            orderingPatientIds = latest.orderingPatientIds - patient.patientId
-                        )
-                    }
-                    _events.emit(PatientListEvent.ShowToast(error.message ?: "Order failed"))
-                }
+            val patient = patients.find { it.patientId == patientId } ?: return@launch
+
+            val result = dailyOrderService.createOrderForPatient(
+                patient.patientId,
+                patient.foodType
             )
+
+            result.onSuccess { order ->
+
+                // Update in-memory orders
+                todaysOrders = todaysOrders + (patientId to order)
+
+                rebuildUi()
+
+                _events.emit(PatientListEvent.ShowToast("Order created for ${patient.name}"))
+            }.onFailure {
+                _events.emit(PatientListEvent.ShowToast(it.message ?: "Order failed"))
+            }
         }
     }
+
+    private fun rebuildUi() {
+
+        val rows = patients.map { patient ->
+
+            val order = todaysOrders[patient.patientId]
+
+            PatientRowUi(
+                patientId = patient.patientId,
+                name = patient.name,
+                room = patient.room,
+                foodTypeName = patient.foodType.typeName,
+
+                hasOrder = order != null,
+                statusText = if (order != null) "Ordered" else "Not ordered",
+
+                expanded = patient.patientId in expandedIds,
+
+                breakfast = order?.breakfast?.name,
+                lunch = order?.lunch?.name,
+                afternoonSnack = order?.afternoonSnack?.name,
+                dinner = order?.dinner?.name,
+                nightSnack = order?.nightSnack?.name
+            )
+        }
+
+        _uiState.value = PatientListUiState.Success(rows)
+    }
+
+    fun toggleExpand(patientId: Long) {
+        expandedIds = if (patientId in expandedIds)
+            expandedIds - patientId
+        else
+            expandedIds + patientId
+
+        rebuildUi()
+    }
+
+
 
     private val _events = MutableSharedFlow<PatientListEvent>()
     val events: SharedFlow<PatientListEvent> = _events
@@ -85,11 +127,23 @@ class PatientListViewModel(
         object Loading : PatientListUiState()
 
         data class Success(
-            val patients: List<Patient>,
-            val orderedPatientIds: Set<Long> = emptySet(),
-            val orderingPatientIds: Set<Long> = emptySet()
+            val rows: List<PatientRowUi>
         ) : PatientListUiState()
 
         data class Error(val message: String) : PatientListUiState()
     }
+    data class PatientRowUi(
+        val patientId: Long,
+        val name: String,
+        val room: String,
+        val foodTypeName: String,
+        val statusText: String,
+        val hasOrder: Boolean,
+        val expanded: Boolean,
+        val breakfast: String?,
+        val lunch: String?,
+        val afternoonSnack: String?,
+        val dinner: String?,
+        val nightSnack: String?
+    )
 }
