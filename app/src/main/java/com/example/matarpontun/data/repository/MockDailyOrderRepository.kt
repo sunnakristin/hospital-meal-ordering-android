@@ -68,12 +68,17 @@ class MockDailyOrderRepository : DailyOrderRepository {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun getDailyOrdersForWard(
         wardId: Long
     ): Result<List<DailyOrder>> {
+        val today = LocalDate.now()
 
         val wardOrders = ordersByWard[wardId] ?: emptyMap()
 
-        return Result.success(wardOrders.values.toList())
+        val todaysOrders = wardOrders.values
+            .filter { it.orderDate == today }
+
+        return Result.success(todaysOrders)
     }
 }
