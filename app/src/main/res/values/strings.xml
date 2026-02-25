@@ -13,4 +13,5 @@
     <string name="order">Order</string>
     <string name="back">Back</string>
     <string name="show_details">Show Details ▼</string>
+    <string name="order_ward">Order for Ward</string>
 </resources>

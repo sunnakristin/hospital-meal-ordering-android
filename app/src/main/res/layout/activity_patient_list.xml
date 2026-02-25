@@ -17,6 +17,13 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="12dp"/>
 
+        <Button
+            android:id="@+id/btnOrderWard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/order_ward"
+            android:layout_marginBottom="12dp"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerPatients"
             android:layout_width="match_parent"

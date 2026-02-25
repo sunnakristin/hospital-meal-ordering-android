@@ -35,6 +35,8 @@ class PatientListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_patient_list)
 
         val btnBack = findViewById<Button>(R.id.btnBack)
+        val btnOrderWard = findViewById<Button>(R.id.btnOrderWard)
+
 
         val patientRepo = MockPatientRepository()
         val patientService = PatientService(patientRepo)
@@ -86,6 +88,10 @@ class PatientListActivity : AppCompatActivity() {
 
         btnBack.setOnClickListener {
             finish()   // goes back to previous screen
+        }
+
+        btnOrderWard.setOnClickListener {
+            viewModel.orderForWard(wardId) // order for ward
         }
     }
 

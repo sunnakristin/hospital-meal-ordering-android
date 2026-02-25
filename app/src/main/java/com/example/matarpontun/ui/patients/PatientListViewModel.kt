@@ -75,6 +75,36 @@ class PatientListViewModel(
         }
     }
 
+    fun orderForWard(wardId: Long) {
+
+        viewModelScope.launch {
+
+            val result = dailyOrderService.createOrdersForWard(
+                wardId,
+                patients
+            )
+
+            result.onSuccess { orders ->
+
+                // Update todaysOrders map
+                val updated = orders.associateBy { it.patient.patientId }
+
+                todaysOrders = todaysOrders + updated
+
+                rebuildUi()
+
+                _events.emit(
+                    PatientListEvent.ShowToast("Orders created for ward")
+                )
+
+            }.onFailure {
+                _events.emit(
+                    PatientListEvent.ShowToast(it.message ?: "Failed to order ward")
+                )
+            }
+        }
+    }
+
     private fun rebuildUi() {
 
         val rows = patients.map { patient ->
