@@ -69,6 +69,49 @@ class MockDailyOrderRepository : DailyOrderRepository {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
+    override suspend fun createOrdersForWard(
+        wardId: Long,
+        patients: List<Patient>
+    ): Result<List<DailyOrder>> {
+
+        val wardOrders = ordersByWard.getOrPut(wardId) { mutableMapOf() }
+
+        val today = LocalDate.now()
+
+        val createdOrders = patients.map { patient ->
+
+            val menu = Menu(
+                id = 1,
+                date = today,
+                foodType = patient.foodType,
+                breakfast = Meal(1, "Oatmeal", "", "Breakfast", patient.foodType),
+                lunch = Meal(2, "Fish", "", "Lunch", patient.foodType),
+                afternoonSnack = Meal(3, "Yogurt", "", "Snack", patient.foodType),
+                dinner = Meal(4, "Soup", "", "Dinner", patient.foodType),
+                nightSnack = Meal(5, "Sandwich", "", "Snack", patient.foodType)
+            )
+
+            val order = DailyOrder(
+                id = Random.nextLong(),
+                orderDate = today,
+                status = "CREATED",
+                patient = patient,
+                menu = menu,
+                breakfast = menu.breakfast,
+                lunch = menu.lunch,
+                afternoonSnack = menu.afternoonSnack,
+                dinner = menu.dinner,
+                nightSnack = menu.nightSnack
+            )
+
+            wardOrders[patient.patientId] = order
+            order
+        }
+
+        return Result.success(createdOrders)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun getDailyOrdersForWard(
         wardId: Long
     ): Result<List<DailyOrder>> {
