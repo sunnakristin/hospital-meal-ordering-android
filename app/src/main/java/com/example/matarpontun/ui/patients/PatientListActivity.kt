@@ -57,6 +57,9 @@ class PatientListActivity : AppCompatActivity() {
             },
             onToggleClicked = { patientId ->
                 viewModel.toggleExpand(patientId)
+            }            ,
+            onFixConflictsClicked = { patientId ->
+                viewModel.fixConflicts(patientId)
             }
         )
 

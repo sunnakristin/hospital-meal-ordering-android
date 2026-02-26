@@ -105,6 +105,31 @@ class PatientListViewModel(
         }
     }
 
+    fun toggleExpand(patientId: Long) {
+        expandedIds = if (patientId in expandedIds)
+            expandedIds - patientId
+        else
+            expandedIds + patientId
+
+        rebuildUi()
+    }
+
+    fun fixConflicts(patientId: Long) {
+        viewModelScope.launch {
+            val result = dailyOrderService.fixConflicts(patientId)
+
+            result.fold(
+                onSuccess = { updatedOrder ->
+                    todaysOrders = todaysOrders + (patientId to updatedOrder)
+                   rebuildUi()
+                },
+                onFailure = {
+                    _events.emit(PatientListEvent.ShowToast("Unable to fix conflicts"))
+                }
+            )
+        }
+    }
+
     private fun rebuildUi() {
 
         val rows = patients.map { patient ->
@@ -118,9 +143,16 @@ class PatientListViewModel(
                 foodTypeName = patient.foodType.typeName,
 
                 hasOrder = order != null,
-                statusText = if (order != null) "Ordered" else "Not ordered",
+                statusText = when (order?.status) {
+                    "SUBMITTED" -> "SUBMITTED"
+                    "AUTO CHANGED" -> "AUTO CHANGED"
+                    "NEEDS MANUAL CHANGE" -> "⚠ NEEDS MANUAL CHANGE"
+                    null -> "Not ordered"
+                    else -> order.status
+                },
 
                 expanded = patient.patientId in expandedIds,
+                canFixConflicts = order?.status == "NEEDS MANUAL CHANGE",
 
                 breakfast = order?.breakfast?.name,
                 lunch = order?.lunch?.name,
@@ -132,17 +164,6 @@ class PatientListViewModel(
 
         _uiState.value = PatientListUiState.Success(rows)
     }
-
-    fun toggleExpand(patientId: Long) {
-        expandedIds = if (patientId in expandedIds)
-            expandedIds - patientId
-        else
-            expandedIds + patientId
-
-        rebuildUi()
-    }
-
-
 
     private val _events = MutableSharedFlow<PatientListEvent>()
     val events: SharedFlow<PatientListEvent> = _events
@@ -159,7 +180,6 @@ class PatientListViewModel(
         data class Success(
             val rows: List<PatientRowUi>
         ) : PatientListUiState()
-
         data class Error(val message: String) : PatientListUiState()
     }
     data class PatientRowUi(
@@ -170,6 +190,7 @@ class PatientListViewModel(
         val statusText: String,
         val hasOrder: Boolean,
         val expanded: Boolean,
+        val canFixConflicts: Boolean,
         val breakfast: String?,
         val lunch: String?,
         val afternoonSnack: String?,

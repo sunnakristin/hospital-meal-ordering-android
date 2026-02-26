@@ -124,4 +124,24 @@ class MockDailyOrderRepository : DailyOrderRepository {
 
         return Result.success(todaysOrders)
     }
+
+    override suspend fun fixConflicts(patientId: Long): Result<DailyOrder> {
+
+        val wardId = 1L
+        val wardOrders = ordersByWard[wardId] ?: return Result.failure(
+            IllegalStateException("No orders for ward")
+        )
+
+        val existingOrder = wardOrders[patientId]
+            ?: return Result.failure(IllegalStateException("No order for patient"))
+
+        // Simulate conflict resolution
+        val updatedOrder = existingOrder.copy(
+            status = "AUTO CHANGED"
+        )
+
+        wardOrders[patientId] = updatedOrder
+
+        return Result.success(updatedOrder)
+    }
 }

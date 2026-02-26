@@ -10,7 +10,8 @@ import com.example.matarpontun.R
 
 class PatientListAdapter(
     private val onOrderClicked: (Long) -> Unit,
-    private val onToggleClicked: (Long) -> Unit
+    private val onToggleClicked: (Long) -> Unit,
+    private val onFixConflictsClicked: (Long) -> Unit
 ) : RecyclerView.Adapter<PatientListAdapter.PatientViewHolder>() {
 
     private var rows: List<PatientListViewModel.PatientRowUi> = emptyList()
@@ -35,6 +36,8 @@ class PatientListAdapter(
         val tvAfternoonSnack: TextView = view.findViewById(R.id.tvAfternoonSnack)
         val tvDinner: TextView = view.findViewById(R.id.tvDinner)
         val tvNightSnack: TextView = view.findViewById(R.id.tvNightSnack)
+
+        val btnFixConflicts: Button = view.findViewById(R.id.btnFixConflicts)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PatientViewHolder {
@@ -69,6 +72,8 @@ class PatientListAdapter(
         holder.btnToggle.setOnClickListener {
             onToggleClicked(row.patientId)
         }
+        holder.btnFixConflicts.visibility =
+            if (row.canFixConflicts) View.VISIBLE else View.GONE
 
         if (row.hasOrder) {
             holder.tvBreakfast.text = buildString {
