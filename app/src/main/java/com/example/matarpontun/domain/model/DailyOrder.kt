@@ -3,14 +3,14 @@ package com.example.matarpontun.domain.model
 import java.time.LocalDate
 
 data class DailyOrder(
-    val id: Long,
-    val orderDate: LocalDate,
-    val status: String,
-    val patient: Patient,
-    val menu: Menu,
-    val breakfast: Meal,
-    val lunch: Meal,
-    val afternoonSnack: Meal,
-    val dinner: Meal,
-    val nightSnack: Meal
+    var id: Long,
+    var orderDate: LocalDate,
+    var status: String,
+    var patient: Patient,
+    var menu: Menu,
+    var breakfast: Meal,
+    var lunch: Meal,
+    var afternoonSnack: Meal,
+    var dinner: Meal,
+    var nightSnack: Meal
 )

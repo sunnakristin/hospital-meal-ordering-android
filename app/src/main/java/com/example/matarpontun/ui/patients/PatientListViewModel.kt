@@ -18,19 +18,18 @@ class PatientListViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PatientListUiState>(PatientListUiState.Idle)
+    val uiState: StateFlow<PatientListUiState> = _uiState
 
     private var expandedIds: Set<Long> = emptySet()
     private var patients: List<Patient> = emptyList()
     private var todaysOrders: Map<Long, DailyOrder> = emptyMap()
-    val uiState: StateFlow<PatientListUiState> = _uiState
 
     fun loadPatients(wardId: Long) {
         _uiState.value = PatientListUiState.Loading
 
         viewModelScope.launch {
-
             val patientResult = patientService.getPatientsByWard(wardId)
-            val orderResult = dailyOrderService.getDailyOrdersForWard(wardId) // must exist
+            val orderResult = dailyOrderService.getDailyOrdersForWard(wardId)
 
             patientResult.onSuccess {
                 patients = it
@@ -42,7 +41,6 @@ class PatientListViewModel(
             orderResult.onSuccess {
                 todaysOrders = it.associateBy { order -> order.patient.patientId }
             }.onFailure {
-                // If orders fail, still show patients
                 todaysOrders = emptyMap()
             }
 
@@ -51,23 +49,14 @@ class PatientListViewModel(
     }
 
     fun orderForPatient(patientId: Long) {
-
         viewModelScope.launch {
-
             val patient = patients.find { it.patientId == patientId } ?: return@launch
 
-            val result = dailyOrderService.createOrderForPatient(
-                patient.patientId,
-                patient.foodType
-            )
+            val result = dailyOrderService.createOrderForPatient(patient.patientId, patient.foodType)
 
             result.onSuccess { order ->
-
-                // Update in-memory orders
                 todaysOrders = todaysOrders + (patientId to order)
-
                 rebuildUi()
-
                 _events.emit(PatientListEvent.ShowToast("Order created for ${patient.name}"))
             }.onFailure {
                 _events.emit(PatientListEvent.ShowToast(it.message ?: "Order failed"))
@@ -76,41 +65,22 @@ class PatientListViewModel(
     }
 
     fun orderForWard(wardId: Long) {
-
         viewModelScope.launch {
-
-            val result = dailyOrderService.createOrdersForWard(
-                wardId,
-                patients
-            )
+            val result = dailyOrderService.createOrdersForWard(wardId, patients)
 
             result.onSuccess { orders ->
-
-                // Update todaysOrders map
                 val updated = orders.associateBy { it.patient.patientId }
-
                 todaysOrders = todaysOrders + updated
-
                 rebuildUi()
-
-                _events.emit(
-                    PatientListEvent.ShowToast("Orders created for ward")
-                )
-
+                _events.emit(PatientListEvent.ShowToast("Orders created for ward"))
             }.onFailure {
-                _events.emit(
-                    PatientListEvent.ShowToast(it.message ?: "Failed to order ward")
-                )
+                _events.emit(PatientListEvent.ShowToast(it.message ?: "Failed to order ward"))
             }
         }
     }
 
     fun toggleExpand(patientId: Long) {
-        expandedIds = if (patientId in expandedIds)
-            expandedIds - patientId
-        else
-            expandedIds + patientId
-
+        expandedIds = if (patientId in expandedIds) expandedIds - patientId else expandedIds + patientId
         rebuildUi()
     }
 
@@ -118,23 +88,41 @@ class PatientListViewModel(
         viewModelScope.launch {
             val result = dailyOrderService.fixConflicts(patientId)
 
-            result.fold(
-                onSuccess = { updatedOrder ->
-                    todaysOrders = todaysOrders + (patientId to updatedOrder)
-                   rebuildUi()
-                },
-                onFailure = {
-                    _events.emit(PatientListEvent.ShowToast("Unable to fix conflicts"))
-                }
-            )
+            result.onSuccess { updatedOrder ->
+                todaysOrders = todaysOrders + (patientId to updatedOrder)
+                rebuildUi()
+                _events.emit(PatientListEvent.ShowToast("Conflicts checked"))
+            }.onFailure {
+                _events.emit(PatientListEvent.ShowToast(it.message ?: "Unable to fix conflicts"))
+            }
         }
     }
 
     private fun rebuildUi() {
-
         val rows = patients.map { patient ->
-
             val order = todaysOrders[patient.patientId]
+            val status = order?.status  // raw backend/mock status
+
+            val statusText = when (status) {
+                "SUBMITTED" -> "SUBMITTED"
+                "AUTO CHANGED" -> "AUTO CHANGED"
+                "NEEDS MANUAL CHANGE" -> "NEEDS MANUAL CHANGE ⚠"
+                null -> "Not ordered"
+                else -> status
+            }
+
+            val showFixButton = (status == "NEEDS MANUAL CHANGE")
+
+            // Primary button = ordering button, but we don’t want it to say ORDERED for conflicts.
+            val primaryButtonText = when (status) {
+                null -> "ORDER"
+                "SUBMITTED" -> "SUBMITTED"
+                "AUTO CHANGED" -> "AUTO CHANGED"
+                "NEEDS MANUAL CHANGE" -> "REVIEW"
+                else -> "ORDERED"
+            }
+
+            val primaryButtonEnabled = (status == null) // only order when no order exists
 
             PatientRowUi(
                 patientId = patient.patientId,
@@ -143,16 +131,14 @@ class PatientListViewModel(
                 foodTypeName = patient.foodType.typeName,
 
                 hasOrder = order != null,
-                statusText = when (order?.status) {
-                    "SUBMITTED" -> "SUBMITTED"
-                    "AUTO CHANGED" -> "AUTO CHANGED"
-                    "NEEDS MANUAL CHANGE" -> "⚠ NEEDS MANUAL CHANGE"
-                    null -> "Not ordered"
-                    else -> order.status
-                },
+                orderStatus = status,
+                statusText = statusText,
+
+                primaryButtonText = primaryButtonText,
+                primaryButtonEnabled = primaryButtonEnabled,
+                showFixButton = showFixButton,
 
                 expanded = patient.patientId in expandedIds,
-                canFixConflicts = order?.status == "NEEDS MANUAL CHANGE",
 
                 breakfast = order?.breakfast?.name,
                 lunch = order?.lunch?.name,
@@ -176,21 +162,22 @@ class PatientListViewModel(
     sealed class PatientListUiState {
         object Idle : PatientListUiState()
         object Loading : PatientListUiState()
-
-        data class Success(
-            val rows: List<PatientRowUi>
-        ) : PatientListUiState()
+        data class Success(val rows: List<PatientRowUi>) : PatientListUiState()
         data class Error(val message: String) : PatientListUiState()
     }
+
     data class PatientRowUi(
         val patientId: Long,
         val name: String,
         val room: String,
         val foodTypeName: String,
-        val statusText: String,
         val hasOrder: Boolean,
+        val orderStatus: String?,     // raw status
+        val statusText: String,       // pretty text
+        val primaryButtonText: String,
+        val primaryButtonEnabled: Boolean,
+        val showFixButton: Boolean,
         val expanded: Boolean,
-        val canFixConflicts: Boolean,
         val breakfast: String?,
         val lunch: String?,
         val afternoonSnack: String?,

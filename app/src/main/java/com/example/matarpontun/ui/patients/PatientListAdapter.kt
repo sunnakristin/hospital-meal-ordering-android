@@ -54,8 +54,16 @@ class PatientListAdapter(
         holder.tvFoodType.text = "Food Type: ${row.foodTypeName}"
         holder.tvStatus.text = "Status: ${row.statusText}"
 
-        holder.btnOrder.text = if (row.hasOrder) "ORDERED" else "ORDER"
-        holder.btnOrder.isEnabled = !row.hasOrder
+        holder.btnOrder.text = row.primaryButtonText
+        holder.btnOrder.isEnabled = row.primaryButtonEnabled
+
+        holder.btnOrder.setOnClickListener {
+            if (row.primaryButtonEnabled) onOrderClicked(row.patientId)
+        }
+
+        // If you add btnFixConflicts to the layout + ViewHolder:
+        holder.btnFixConflicts.visibility = if (row.showFixButton) View.VISIBLE else View.GONE
+        holder.btnFixConflicts.setOnClickListener { onFixConflictsClicked(row.patientId) }
 
         holder.detailsContainer.visibility =
             if (row.expanded) View.VISIBLE else View.GONE
@@ -72,8 +80,6 @@ class PatientListAdapter(
         holder.btnToggle.setOnClickListener {
             onToggleClicked(row.patientId)
         }
-        holder.btnFixConflicts.visibility =
-            if (row.canFixConflicts) View.VISIBLE else View.GONE
 
         if (row.hasOrder) {
             holder.tvBreakfast.text = buildString {
