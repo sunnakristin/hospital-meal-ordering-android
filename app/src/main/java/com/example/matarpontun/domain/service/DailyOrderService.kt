@@ -39,4 +39,8 @@ class DailyOrderService(
 
         return repository.getDailyOrdersForWard(wardId)
     }
+
+    suspend fun fixConflicts(patientId: Long): Result<DailyOrder> {
+        return repository.fixConflicts(patientId)
+    }
 }

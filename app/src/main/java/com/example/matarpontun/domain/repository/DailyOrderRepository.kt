@@ -18,4 +18,8 @@ interface DailyOrderRepository {
     suspend fun getDailyOrdersForWard(
         wardId: Long
     ): Result<List<DailyOrder>>
+
+    suspend fun fixConflicts(
+        patientId: Long
+    ): Result<DailyOrder>
 }

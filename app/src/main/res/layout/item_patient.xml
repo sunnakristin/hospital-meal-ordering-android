@@ -40,6 +40,7 @@
             android:layout_height="wrap_content"
             android:text="@string/show_details"
             android:layout_marginStart="12dp"/>
+
     </LinearLayout>
 
     <!-- EXPANDABLE DETAILS -->
@@ -56,6 +57,12 @@
         <TextView android:id="@+id/tvAfternoonSnack" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         <TextView android:id="@+id/tvDinner" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         <TextView android:id="@+id/tvNightSnack" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btnFixConflicts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fix_conflicts"/>
 
     </LinearLayout>
 </LinearLayout>
