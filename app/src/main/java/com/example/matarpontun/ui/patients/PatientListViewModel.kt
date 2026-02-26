@@ -148,7 +148,14 @@ class PatientListViewModel(
             )
         }
 
-        _uiState.value = PatientListUiState.Success(rows)
+        _uiState.value = PatientListUiState.Success(rows = rows, canOrderWard = canOrderWard())
+    }
+
+    // checks if there are patients without orders for the ward
+    private fun canOrderWard(): Boolean {
+        return patients.any { patient ->
+            todaysOrders[patient.patientId] == null
+        }
     }
 
     private val _events = MutableSharedFlow<PatientListEvent>()
@@ -162,7 +169,7 @@ class PatientListViewModel(
     sealed class PatientListUiState {
         object Idle : PatientListUiState()
         object Loading : PatientListUiState()
-        data class Success(val rows: List<PatientRowUi>) : PatientListUiState()
+        data class Success(val rows: List<PatientRowUi>, val canOrderWard: Boolean) : PatientListUiState()
         data class Error(val message: String) : PatientListUiState()
     }
 
