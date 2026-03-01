@@ -23,6 +23,7 @@ class PatientListActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
     private lateinit var adapter: PatientListAdapter
+    private lateinit var btnOrderWard: Button
 
     // singleton container for repositories and services - now order survivies navigation while app is running
     object AppContainer {
@@ -34,9 +35,8 @@ class PatientListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
 
+        btnOrderWard = findViewById(R.id.btnOrderWard)
         val btnBack = findViewById<Button>(R.id.btnBack)
-        val btnOrderWard = findViewById<Button>(R.id.btnOrderWard)
-
 
         val patientRepo = MockPatientRepository()
         val patientService = PatientService(patientRepo)
@@ -57,6 +57,9 @@ class PatientListActivity : AppCompatActivity() {
             },
             onToggleClicked = { patientId ->
                 viewModel.toggleExpand(patientId)
+            }            ,
+            onFixConflictsClicked = { patientId ->
+                viewModel.fixConflicts(patientId)
             }
         )
 
@@ -107,7 +110,9 @@ class PatientListActivity : AppCompatActivity() {
 
                     is PatientListUiState.Success -> {
                         progressBar.visibility = View.GONE
-                        adapter.submitRows(state.rows)                    }
+                        adapter.submitRows(state.rows)
+                        btnOrderWard.isEnabled = state.canOrderWard
+                    }
 
                     is PatientListUiState.Error -> {
                         progressBar.visibility = View.GONE
