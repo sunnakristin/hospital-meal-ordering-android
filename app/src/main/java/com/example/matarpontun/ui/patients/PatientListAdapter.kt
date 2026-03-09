@@ -36,6 +36,7 @@ class PatientListAdapter(
         val tvAfternoonSnack: TextView = view.findViewById(R.id.tvAfternoonSnack)
         val tvDinner: TextView = view.findViewById(R.id.tvDinner)
         val tvNightSnack: TextView = view.findViewById(R.id.tvNightSnack)
+        val tvRestrictions: TextView = view.findViewById(R.id.tvRestrictions)
 
         val btnFixConflicts: Button = view.findViewById(R.id.btnFixConflicts)
     }
@@ -79,6 +80,14 @@ class PatientListAdapter(
 
         holder.btnToggle.setOnClickListener {
             onToggleClicked(row.patientId)
+        }
+
+        holder.tvRestrictions.text = buildString {
+            append("Restrictions: ")
+            append(
+                if (row.restrictions.isEmpty()) "None"
+                else row.restrictions.joinToString(", ")
+            )
         }
 
         if (row.hasOrder) {

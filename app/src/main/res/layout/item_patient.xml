@@ -52,6 +52,7 @@
         android:visibility="gone"
         android:paddingTop="8dp">
 
+        <TextView android:id="@+id/tvRestrictions" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         <TextView android:id="@+id/tvBreakfast" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         <TextView android:id="@+id/tvLunch" android:layout_width="match_parent" android:layout_height="wrap_content"/>
         <TextView android:id="@+id/tvAfternoonSnack" android:layout_width="match_parent" android:layout_height="wrap_content"/>
