@@ -107,7 +107,7 @@ class PatientListActivity : AppCompatActivity() {
                     is PatientListUiState.Success -> {
                         progressBar.visibility = View.GONE
                         adapter.submitRows(state.rows)
-                        btnOrderWard.isEnabled = true // can later compute it from patients
+                        btnOrderWard.isEnabled = state.canOrderWard
                     }
 
                     is PatientListUiState.Error -> {
