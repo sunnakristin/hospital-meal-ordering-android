@@ -22,6 +22,7 @@ class PatientListActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var adapter: PatientListAdapter
     private lateinit var btnOrderWard: Button
+    private var wardId: Long = -1
 
     // singleton container for repositories and services - now order survivies navigation while app is running
     /*object AppContainer {
@@ -32,6 +33,10 @@ class PatientListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        wardId = intent.getLongExtra("WARD_ID", -1)
+        //wardId = 3
+
         setContentView(R.layout.activity_patient_list)
 
         btnOrderWard = findViewById(R.id.btnOrderWard)
@@ -61,7 +66,7 @@ class PatientListActivity : AppCompatActivity() {
 
         recyclerView.adapter = adapter
 
-        val wardId = intent.getLongExtra("WARD_ID", -1)
+        //wardId = intent.getLongExtra("WARD_ID", -1)
 
         observe()
 

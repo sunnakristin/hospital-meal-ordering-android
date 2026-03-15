@@ -3,6 +3,7 @@ package com.example.matarpontun.ui.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -71,6 +72,9 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     is LoginUiState.Success -> {
+
+                        Log.d("LOGIN", "Ward id from backend = ${state.ward.id}")
+
                         progressBar.visibility = View.GONE
                         btnLogin.isEnabled = true
 
