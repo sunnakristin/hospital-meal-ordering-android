@@ -11,7 +11,6 @@ import com.example.matarpontun.R
 class PatientListAdapter(
     private val onOrderClicked: (Long) -> Unit,
     private val onToggleClicked: (Long) -> Unit,
-    private val onFixConflictsClicked: (Long) -> Unit
 ) : RecyclerView.Adapter<PatientListAdapter.PatientViewHolder>() {
 
     private var rows: List<PatientListViewModel.PatientRowUi> = emptyList()
@@ -52,7 +51,7 @@ class PatientListAdapter(
 
         holder.tvName.text = row.name
         holder.tvFoodType.text = "Food Type: ${row.foodTypeName}"
-        holder.tvStatus.text = "Status: ${row.statusText}"
+        //holder.tvStatus.text = "Status: ${row.statusText}"
 
         holder.btnOrder.text = row.primaryButtonText
         holder.btnOrder.isEnabled = row.primaryButtonEnabled
@@ -60,10 +59,6 @@ class PatientListAdapter(
         holder.btnOrder.setOnClickListener {
             if (row.primaryButtonEnabled) onOrderClicked(row.patientId)
         }
-
-        // If you add btnFixConflicts to the layout + ViewHolder:
-        holder.btnFixConflicts.visibility = if (row.showFixButton) View.VISIBLE else View.GONE
-        holder.btnFixConflicts.setOnClickListener { onFixConflictsClicked(row.patientId) }
 
         holder.detailsContainer.visibility =
             if (row.expanded) View.VISIBLE else View.GONE

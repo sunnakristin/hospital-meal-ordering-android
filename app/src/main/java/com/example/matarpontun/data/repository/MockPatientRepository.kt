@@ -5,22 +5,13 @@ import com.example.matarpontun.domain.model.Patient
 import com.example.matarpontun.domain.repository.PatientRepository
 import kotlinx.coroutines.delay
 
-class MockPatientRepository : PatientRepository {
+/* class MockPatientRepository : PatientRepository {
     override suspend fun getPatientsByWard(wardId: Long): List<Patient> {
         delay(400)
 
         // Define food types once
-        val normalFood = FoodType(
-            id = 1,
-            typeName = "A1",
-            description = "Normal food"
-        )
-
-        val vegetarianFood = FoodType(
-            id = 2,
-            typeName = "A2",
-            description = "Vegetarian"
-        )
+        val normalFood = FoodType("A1")
+        val vegetarianFood = FoodType("A2")
 
         return when (wardId) {
             1L -> listOf(
@@ -62,3 +53,5 @@ class MockPatientRepository : PatientRepository {
         }
     }
 }
+
+ */

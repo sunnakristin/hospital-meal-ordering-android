@@ -7,11 +7,6 @@ class PatientService (
     private val patientRepository: PatientRepository
 ) {
     suspend fun getPatientsByWard(wardId: Long): Result<List<Patient>> {
-
-        if (wardId <= 0) {
-            return Result.failure(IllegalArgumentException("Invalid ward id"))
-        }
-
         return try {
             val patients = patientRepository.getPatientsByWard(wardId)
             Result.success(patients)

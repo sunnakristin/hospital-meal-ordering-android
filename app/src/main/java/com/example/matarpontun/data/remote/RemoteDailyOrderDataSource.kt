@@ -4,8 +4,13 @@ import com.example.matarpontun.domain.model.DailyOrder
 import com.example.matarpontun.domain.model.FoodType
 
 interface RemoteDailyOrderDataSource {
-    suspend fun createOrderForPatient(
+
+    // kallar á POST /patients/{id}/order
+    suspend fun orderForPatient(
         patientId: Long,
         foodType: FoodType
     ): DailyOrder
+    suspend fun orderForWard(
+        wardId: Long
+    )
 }

@@ -9,11 +9,8 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.matarpontun.AppContainer
 import com.example.matarpontun.R
-import com.example.matarpontun.data.repository.MockDailyOrderRepository
-import com.example.matarpontun.data.repository.MockPatientRepository
-import com.example.matarpontun.domain.service.DailyOrderService
-import com.example.matarpontun.domain.service.PatientService
 import com.example.matarpontun.ui.patients.PatientListViewModel.PatientListUiState
 
 import kotlinx.coroutines.launch
@@ -26,10 +23,11 @@ class PatientListActivity : AppCompatActivity() {
     private lateinit var btnOrderWard: Button
 
     // singleton container for repositories and services - now order survivies navigation while app is running
-    object AppContainer {
+    /*object AppContainer {
         val dailyOrderRepository = MockDailyOrderRepository()
         val dailyOrderService = DailyOrderService(dailyOrderRepository)
-    }
+    }*/
+    // -> hef núna í sér skrá
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,11 +36,8 @@ class PatientListActivity : AppCompatActivity() {
         btnOrderWard = findViewById(R.id.btnOrderWard)
         val btnBack = findViewById<Button>(R.id.btnBack)
 
-        val patientRepo = MockPatientRepository()
-        val patientService = PatientService(patientRepo)
-
         viewModel = PatientListViewModel(
-            patientService,
+            AppContainer.patientService,
             AppContainer.dailyOrderService
         )
 
@@ -57,9 +52,6 @@ class PatientListActivity : AppCompatActivity() {
             },
             onToggleClicked = { patientId ->
                 viewModel.toggleExpand(patientId)
-            }            ,
-            onFixConflictsClicked = { patientId ->
-                viewModel.fixConflicts(patientId)
             }
         )
 
@@ -78,11 +70,6 @@ class PatientListActivity : AppCompatActivity() {
                             event.message,
                             Toast.LENGTH_SHORT
                         ).show()
-                    }
-
-                    is PatientListViewModel.PatientListEvent.NavigateToOrderDetails -> {
-                        // Later: start OrderDetailsActivity
-                        // For now we show toast
                     }
                 }
             }
@@ -111,7 +98,7 @@ class PatientListActivity : AppCompatActivity() {
                     is PatientListUiState.Success -> {
                         progressBar.visibility = View.GONE
                         adapter.submitRows(state.rows)
-                        btnOrderWard.isEnabled = state.canOrderWard
+                        btnOrderWard.isEnabled = true // can later compute it from patients
                     }
 
                     is PatientListUiState.Error -> {
