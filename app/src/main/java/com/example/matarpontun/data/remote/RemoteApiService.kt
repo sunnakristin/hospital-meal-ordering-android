@@ -3,6 +3,7 @@ package com.example.matarpontun.data.remote
 import com.example.matarpontun.data.remote.dto.LoginRequest
 import com.example.matarpontun.data.remote.dto.OrderRequest
 import com.example.matarpontun.data.remote.dto.OrderResponseDto
+import com.example.matarpontun.data.remote.dto.WardPatientsDto
 import com.example.matarpontun.domain.model.DailyOrder
 import com.example.matarpontun.domain.model.FoodType
 import com.example.matarpontun.domain.model.Patient
@@ -14,22 +15,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RemoteApiService {
-
-    data class WardPatientsDto(
-        val wardName: String,
-        val patients: List<PatientDto>
-    )
-
-    data class PatientDto(
-        val patientId: Long,
-        val name: String,
-        val bedNumber: Int,
-        val roomNumber: String,
-        val foodType: String,
-        val restrictions: List<String>
-    )
-
-    @POST("patients/{id}/order")
+        @POST("patients/{id}/order")
     suspend fun createOrder(
         @Path("id") patientId: Long,
         @Body request: OrderRequest

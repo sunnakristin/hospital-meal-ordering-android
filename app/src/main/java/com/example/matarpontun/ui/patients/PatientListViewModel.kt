@@ -24,6 +24,11 @@ class PatientListViewModel(
     private var patients: List<Patient> = emptyList()
     private var todaysOrders: Map<Long, DailyOrder> = emptyMap()
 
+    fun loadPatientsIfNeeded(wardId: Long) {
+        if (patients.isNotEmpty()) return
+        loadPatients(wardId)
+    }
+
     fun loadPatients(wardId: Long) {
         _uiState.value = PatientListUiState.Loading
 
@@ -100,12 +105,26 @@ class PatientListViewModel(
 
         rebuildUi()
     }
-
     private fun rebuildUi() {
 
         val rows = patients.map { patient ->
 
-            val order = todaysOrders[patient.patientId]
+            val localOrder = todaysOrders[patient.patientId]
+
+            // backend already has order
+            val backendHasOrder = patient.status == "SUBMITTED"
+                    || patient.status == "AUTO CHANGED"
+                    || patient.status == "NEEDS MANUAL CHANGE"
+
+            val hasOrder = localOrder != null || backendHasOrder
+
+            val statusText = when (patient.status) {
+                "SUBMITTED" -> "Order placed"
+                "AUTO CHANGED" -> "Order placed (conflict fixed)"
+                "NEEDS MANUAL CHANGE" -> "Manual review required ⚠"
+                null -> "Ready to order"
+                else -> patient.status ?: ""
+            }
 
             PatientRowUi(
                 patientId = patient.patientId,
@@ -113,21 +132,22 @@ class PatientListViewModel(
                 room = patient.room,
                 foodTypeName = patient.foodType.typeName,
 
-                hasOrder = order != null,
+                hasOrder = hasOrder,
+                statusText = statusText,
 
                 primaryButtonText =
-                    if (order == null) "ORDER"
-                    else "ORDERED",
+                    if (hasOrder) "ORDERED" else "ORDER",
 
-                primaryButtonEnabled = order == null,
+                primaryButtonEnabled = !hasOrder,
 
                 expanded = patient.patientId in expandedIds,
 
-                breakfast = order?.breakfast?.name,
-                lunch = order?.lunch?.name,
-                afternoonSnack = order?.afternoonSnack?.name,
-                dinner = order?.dinner?.name,
-                nightSnack = order?.nightSnack?.name
+                // show meals if we created order locally
+                breakfast = localOrder?.breakfast?.name,
+                lunch = localOrder?.lunch?.name,
+                afternoonSnack = localOrder?.afternoonSnack?.name,
+                dinner = localOrder?.dinner?.name,
+                nightSnack = localOrder?.nightSnack?.name
             )
         }
 
@@ -159,6 +179,7 @@ class PatientListViewModel(
         val room: String,
         val foodTypeName: String,
         val hasOrder: Boolean,
+        val statusText: String,
         val primaryButtonText: String,
         val primaryButtonEnabled: Boolean,
         val expanded: Boolean,

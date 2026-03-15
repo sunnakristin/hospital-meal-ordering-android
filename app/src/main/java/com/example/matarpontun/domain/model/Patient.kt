@@ -6,5 +6,6 @@ data class Patient (
     val bedNumber: Int,
     val room: String, //Room,
     val foodType: FoodType,
-    val restrictions: List<String>
+    val restrictions: List<String>,
+    val status: String
 )

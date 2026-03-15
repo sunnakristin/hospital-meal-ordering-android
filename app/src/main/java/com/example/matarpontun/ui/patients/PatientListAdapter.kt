@@ -35,8 +35,6 @@ class PatientListAdapter(
         val tvAfternoonSnack: TextView = view.findViewById(R.id.tvAfternoonSnack)
         val tvDinner: TextView = view.findViewById(R.id.tvDinner)
         val tvNightSnack: TextView = view.findViewById(R.id.tvNightSnack)
-
-        val btnFixConflicts: Button = view.findViewById(R.id.btnFixConflicts)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PatientViewHolder {
@@ -51,30 +49,29 @@ class PatientListAdapter(
 
         holder.tvName.text = row.name
         holder.tvFoodType.text = "Food Type: ${row.foodTypeName}"
-        //holder.tvStatus.text = "Status: ${row.statusText}"
+        holder.tvStatus.text = row.statusText//"Status: ${row.statusText}"
 
         holder.btnOrder.text = row.primaryButtonText
         holder.btnOrder.isEnabled = row.primaryButtonEnabled
 
         holder.btnOrder.setOnClickListener {
-            if (row.primaryButtonEnabled) onOrderClicked(row.patientId)
+            if (row.primaryButtonEnabled)
+                onOrderClicked(row.patientId)
         }
 
-        holder.detailsContainer.visibility =
-            if (row.expanded) View.VISIBLE else View.GONE
+        //holder.detailsContainer.visibility = if (row.expanded) View.VISIBLE else View.GONE
 
+        holder.btnToggle.isEnabled = row.hasOrder
         holder.btnToggle.text =
             if (row.expanded) "Hide Details ▲" else "Show Details ▼"
 
-        holder.btnOrder.setOnClickListener {
-            if (!row.hasOrder) {
-                onOrderClicked(row.patientId)
-            }
-        }
-
         holder.btnToggle.setOnClickListener {
+            if (row.hasOrder)
             onToggleClicked(row.patientId)
         }
+
+        holder.detailsContainer.visibility =
+            if (row.expanded && row.hasOrder) View.VISIBLE else View.GONE
 
         if (row.hasOrder) {
             holder.tvBreakfast.text = buildString {

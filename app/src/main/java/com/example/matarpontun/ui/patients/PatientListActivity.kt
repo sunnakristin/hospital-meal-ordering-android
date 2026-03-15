@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.matarpontun.AppContainer
 import com.example.matarpontun.R
@@ -36,10 +37,13 @@ class PatientListActivity : AppCompatActivity() {
         btnOrderWard = findViewById(R.id.btnOrderWard)
         val btnBack = findViewById<Button>(R.id.btnBack)
 
-        viewModel = PatientListViewModel(
-            AppContainer.patientService,
-            AppContainer.dailyOrderService
-        )
+        viewModel = ViewModelProvider(
+            this,
+            PatientListViewModelFactory(
+                AppContainer.patientService,
+                AppContainer.dailyOrderService
+            )
+        )[PatientListViewModel::class.java]
 
         recyclerView = findViewById(R.id.recyclerPatients)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -74,7 +78,7 @@ class PatientListActivity : AppCompatActivity() {
                 }
             }
         }
-        viewModel.loadPatients(wardId)
+        viewModel.loadPatientsIfNeeded(wardId)
 
         btnBack.setOnClickListener {
             finish()   // goes back to previous screen
