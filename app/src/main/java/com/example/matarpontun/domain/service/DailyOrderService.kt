@@ -24,10 +24,7 @@ class DailyOrderService(
 
     suspend fun orderForWard(
         wardId: Long
-    ):  Result<List<DailyOrder>> { //Result<Unit>
-
+    ):  Result<Unit> {
         return repository.orderForWard(wardId)
     }
-
-
 }

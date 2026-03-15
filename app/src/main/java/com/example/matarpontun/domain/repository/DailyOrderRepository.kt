@@ -2,7 +2,6 @@ package com.example.matarpontun.domain.repository
 
 import com.example.matarpontun.domain.model.DailyOrder
 import com.example.matarpontun.domain.model.FoodType
-import com.example.matarpontun.domain.model.Patient
 
 interface DailyOrderRepository {
 
@@ -13,5 +12,5 @@ interface DailyOrderRepository {
 
     suspend fun orderForWard(
         wardId: Long
-    ):  Result<List<DailyOrder>>//Result<Unit>
+    ):  Result<Unit>
 }

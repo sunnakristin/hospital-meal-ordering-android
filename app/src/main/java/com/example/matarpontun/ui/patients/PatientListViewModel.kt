@@ -122,7 +122,7 @@ class PatientListViewModel(
                 "SUBMITTED" -> "Order placed"
                 "AUTO CHANGED" -> "Order placed (conflict fixed)"
                 "NEEDS MANUAL CHANGE" -> "Manual review required ⚠"
-                null -> "Ready to order"
+                "N/A" -> "Ready to order"
                 else -> patient.status ?: ""
             }
 
@@ -143,11 +143,11 @@ class PatientListViewModel(
                 expanded = patient.patientId in expandedIds,
 
                 // show meals if we created order locally
-                breakfast = localOrder?.breakfast?.name,
-                lunch = localOrder?.lunch?.name,
-                afternoonSnack = localOrder?.afternoonSnack?.name,
-                dinner = localOrder?.dinner?.name,
-                nightSnack = localOrder?.nightSnack?.name
+                breakfast = localOrder?.breakfast?.name ?: patient.breakfast,
+                lunch = localOrder?.lunch?.name ?: patient.lunch,
+                afternoonSnack = localOrder?.afternoonSnack?.name ?: patient.afternoonSnack,
+                dinner = localOrder?.dinner?.name ?: patient.dinner,
+                nightSnack = localOrder?.nightSnack?.name ?: patient.nightSnack
             )
         }
 

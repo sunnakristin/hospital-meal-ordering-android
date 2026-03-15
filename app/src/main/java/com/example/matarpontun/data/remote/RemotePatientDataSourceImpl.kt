@@ -1,13 +1,11 @@
 package com.example.matarpontun.data.remote
 
 import com.example.matarpontun.data.remote.dto.LoginRequest
+import com.example.matarpontun.data.remote.dto.WardPatientsDto
+import com.example.matarpontun.data.remote.dto.PatientDto
+import com.example.matarpontun.data.remote.dto.MealsDto
 import com.example.matarpontun.domain.model.FoodType
 import com.example.matarpontun.domain.model.Patient
-import com.example.matarpontun.data.remote.dto.PatientDto
-import com.example.matarpontun.data.remote.dto.WardPatientsDto
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
-
 class RemotePatientDataSourceImpl(
     private val api: RemoteApiService
 ) : RemotePatientDataSource {
@@ -26,7 +24,13 @@ class RemotePatientDataSourceImpl(
                 room = p.roomNumber,
                 foodType = FoodType(typeName = p.foodType),
                 restrictions = p.restrictions,
-                status = p.status
+                status = p.status ?: "N/A",
+
+                breakfast = p.meals?.breakfastName,
+                lunch = p.meals?.lunchName,
+                afternoonSnack = p.meals?.afternoonSnackName,
+                dinner = p.meals?.dinnerName,
+                nightSnack = p.meals?.nightSnackName
 
             )
         }
