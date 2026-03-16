@@ -119,12 +119,12 @@ class PatientListViewModel(
             val hasOrder = localOrder != null || backendHasOrder
 
 
-            val statusText = when (patient.status) {
-                "SUBMITTED" -> "Order placed"
-                "AUTO CHANGED" -> "Order placed (conflict fixed)"
-                "NEEDS MANUAL CHANGE" -> "Manual review required ⚠"
-                "N/A" -> "Ready to order"
-                else -> patient.status ?: ""
+            val statusText = when {
+                localOrder != null -> "Order placed"
+                patient.status == "SUBMITTED" -> "Order placed"
+                patient.status == "AUTO CHANGED" -> "Order placed (conflict fixed)"
+                patient.status == "NEEDS MANUAL CHANGE" -> "Manual review required ⚠"
+                else -> "Ready to order"
             }
 
             PatientRowUi(
@@ -156,21 +156,6 @@ class PatientListViewModel(
         val canOrderWard = rows.any { !it.hasOrder }
 
         _uiState.value = PatientListUiState.Success(rows, canOrderWard)    }
-
-    /*fun canOrderWard(): Boolean {
-        return patients.any { patient ->
-            val localOrder = todaysOrders[patient.patientId]
-
-            val backendHasOrder =
-                patient.status == "SUBMITTED" ||
-                        patient.status == "AUTO CHANGED" ||
-                        patient.status == "NEEDS MANUAL CHANGE"
-
-            localOrder == null && !backendHasOrder
-        }
-    }
-
-     */
 
     sealed class PatientListEvent {
         data class ShowToast(val message: String) : PatientListEvent()

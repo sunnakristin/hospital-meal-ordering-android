@@ -59,8 +59,6 @@ class PatientListAdapter(
                 onOrderClicked(row.patientId)
         }
 
-        //holder.detailsContainer.visibility = if (row.expanded) View.VISIBLE else View.GONE
-
         holder.btnToggle.isEnabled = row.hasOrder
         holder.btnToggle.text =
             if (row.expanded) "Hide Details ▲" else "Show Details ▼"
