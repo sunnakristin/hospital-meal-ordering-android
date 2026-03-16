@@ -3,13 +3,14 @@ package com.example.matarpontun.ui.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.matarpontun.AppContainer
+import com.example.matarpontun.data.remote.dto.LoginRequest
 import com.example.matarpontun.R
-import com.example.matarpontun.data.repository.MockWardRepository
-import com.example.matarpontun.domain.service.WardService
 import com.example.matarpontun.ui.ward.WardActivity
 import kotlinx.coroutines.launch
 
@@ -26,10 +27,8 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Create dependencies manually (simple way)
-        val repository = MockWardRepository()
-        val service = WardService(repository)
-        viewModel = LoginViewModel(service)
+        // now we use network service
+        viewModel = LoginViewModel(AppContainer.wardService)
 
         initViews()
         observeViewModel()
@@ -47,6 +46,9 @@ class LoginActivity : AppCompatActivity() {
         btnLogin.setOnClickListener {
             val wardName = etWardName.text.toString().trim()
             val password = etPassword.text.toString().trim()
+
+            // Store credentials so patient endpoints that require WardDTO can use them
+            AppContainer.currentLoginRequest = LoginRequest(wardName, password)
 
             viewModel.login(wardName, password)
         }
@@ -68,6 +70,9 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     is LoginUiState.Success -> {
+
+                        Log.d("LOGIN", "Ward id from backend = ${state.ward.id}")
+
                         progressBar.visibility = View.GONE
                         btnLogin.isEnabled = true
 

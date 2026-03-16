@@ -11,7 +11,6 @@ import com.example.matarpontun.R
 class PatientListAdapter(
     private val onOrderClicked: (Long) -> Unit,
     private val onToggleClicked: (Long) -> Unit,
-    private val onFixConflictsClicked: (Long) -> Unit
 ) : RecyclerView.Adapter<PatientListAdapter.PatientViewHolder>() {
 
     private var rows: List<PatientListViewModel.PatientRowUi> = emptyList()
@@ -36,9 +35,6 @@ class PatientListAdapter(
         val tvAfternoonSnack: TextView = view.findViewById(R.id.tvAfternoonSnack)
         val tvDinner: TextView = view.findViewById(R.id.tvDinner)
         val tvNightSnack: TextView = view.findViewById(R.id.tvNightSnack)
-        val tvRestrictions: TextView = view.findViewById(R.id.tvRestrictions)
-
-        val btnFixConflicts: Button = view.findViewById(R.id.btnFixConflicts)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PatientViewHolder {
@@ -53,42 +49,27 @@ class PatientListAdapter(
 
         holder.tvName.text = row.name
         holder.tvFoodType.text = "Food Type: ${row.foodTypeName}"
-        holder.tvStatus.text = "Status: ${row.statusText}"
+        holder.tvStatus.text = row.statusText//"Status: ${row.statusText}"
 
         holder.btnOrder.text = row.primaryButtonText
         holder.btnOrder.isEnabled = row.primaryButtonEnabled
 
         holder.btnOrder.setOnClickListener {
-            if (row.primaryButtonEnabled) onOrderClicked(row.patientId)
+            if (row.primaryButtonEnabled)
+                onOrderClicked(row.patientId)
         }
 
-        // If you add btnFixConflicts to the layout + ViewHolder:
-        holder.btnFixConflicts.visibility = if (row.showFixButton) View.VISIBLE else View.GONE
-        holder.btnFixConflicts.setOnClickListener { onFixConflictsClicked(row.patientId) }
-
-        holder.detailsContainer.visibility =
-            if (row.expanded) View.VISIBLE else View.GONE
-
+        holder.btnToggle.isEnabled = row.hasOrder
         holder.btnToggle.text =
             if (row.expanded) "Hide Details ▲" else "Show Details ▼"
 
-        holder.btnOrder.setOnClickListener {
-            if (!row.hasOrder) {
-                onOrderClicked(row.patientId)
-            }
-        }
-
         holder.btnToggle.setOnClickListener {
+            if (row.hasOrder)
             onToggleClicked(row.patientId)
         }
 
-        holder.tvRestrictions.text = buildString {
-            append("Restrictions: ")
-            append(
-                if (row.restrictions.isEmpty()) "None"
-                else row.restrictions.joinToString(", ")
-            )
-        }
+        holder.detailsContainer.visibility =
+            if (row.expanded && row.hasOrder) View.VISIBLE else View.GONE
 
         if (row.hasOrder) {
             holder.tvBreakfast.text = buildString {

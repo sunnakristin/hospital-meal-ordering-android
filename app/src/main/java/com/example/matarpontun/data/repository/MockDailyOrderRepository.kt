@@ -7,14 +7,14 @@ import com.example.matarpontun.domain.repository.DailyOrderRepository
 import java.time.LocalDate
 import kotlin.random.Random
 
-class MockDailyOrderRepository : DailyOrderRepository {
+/* class MockDailyOrderRepository : DailyOrderRepository {
 
     private val ordersByWard: MutableMap<Long, MutableMap<Long, DailyOrder>> = mutableMapOf()
     private val wardId = 1L // hardcoded - for now
 
     // creates order for single patient
     @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun createOrderForPatient(
+    override suspend fun orderFoodForPatient(
         patientId: Long,
         foodType: FoodType
     ): Result<DailyOrder> {
@@ -67,7 +67,7 @@ class MockDailyOrderRepository : DailyOrderRepository {
     ): Result<List<DailyOrder>> {
 
         val results = patients.mapNotNull { patient ->
-            createOrderForPatient(patient.patientId, patient.foodType)
+            orderFoodForPatient(patient.patientId, patient.foodType)
                 .getOrNull()
         }
 
@@ -221,3 +221,5 @@ class MockDailyOrderRepository : DailyOrderRepository {
         return order
     }
 }
+
+ */
