@@ -139,6 +139,7 @@ class PatientListViewModel(
                 showFixButton = showFixButton,
 
                 expanded = patient.patientId in expandedIds,
+                restrictions = patient.restrictions,
 
                 breakfast = order?.breakfast?.name,
                 lunch = order?.lunch?.name,
@@ -185,6 +186,7 @@ class PatientListViewModel(
         val primaryButtonEnabled: Boolean,
         val showFixButton: Boolean,
         val expanded: Boolean,
+        val restrictions: List<String>,
         val breakfast: String?,
         val lunch: String?,
         val afternoonSnack: String?,
