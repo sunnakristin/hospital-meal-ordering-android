@@ -21,7 +21,7 @@ import kotlinx.coroutines.delay
                     bedNumber = 1,
                     room = "101",
                     foodType = normalFood,
-                    restrictions = emptyList()
+                    restrictions = listOf("Fish", "meat", "Chicken")
                 ),
                 Patient(
                     patientId = 2,
@@ -29,7 +29,7 @@ import kotlinx.coroutines.delay
                     bedNumber = 2,
                     room = "102",
                     foodType = vegetarianFood,
-                    restrictions = emptyList()
+                    restrictions = listOf("Tomato")
                 ),
                 Patient(
                     patientId = 3,
@@ -45,7 +45,7 @@ import kotlinx.coroutines.delay
                     bedNumber = 4,
                     room = "104",
                     foodType = normalFood,
-                    restrictions = emptyList()
+                    restrictions = listOf("Milk")
                 )
             )
 

@@ -31,7 +31,7 @@ import kotlin.random.Random
                 bedNumber = 1,
                 room = "101",
                 foodType = foodType,
-                restrictions = listOf("milk")//emptyList()
+                restrictions = listOf("milk")
             )
 
             var order = DailyOrder(

@@ -142,6 +142,7 @@ class PatientListViewModel(
                 primaryButtonEnabled = !hasOrder,
 
                 expanded = patient.patientId in expandedIds,
+                restrictions = patient.restrictions,
 
                 // show meals if we created order locally
                 breakfast = localOrder?.breakfast?.name ?: patient.breakfast,
@@ -187,6 +188,7 @@ class PatientListViewModel(
         val primaryButtonText: String,
         val primaryButtonEnabled: Boolean,
         val expanded: Boolean,
+        val restrictions: List<String>,
         val breakfast: String?,
         val lunch: String?,
         val afternoonSnack: String?,
