@@ -22,8 +22,6 @@ class WardActivity : AppCompatActivity() {
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
         tvWelcome.text = "Welcome $wardName"
 
-        //val wardId = intent.getLongExtra("WARD_ID", -1)
-
         findViewById<Button>(R.id.btnPatients).setOnClickListener {
             val intent = Intent(this, PatientListActivity::class.java)
             intent.putExtra("WARD_ID", wardId)

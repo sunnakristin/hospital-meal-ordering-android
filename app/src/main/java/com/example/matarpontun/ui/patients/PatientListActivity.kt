@@ -24,13 +24,6 @@ class PatientListActivity : AppCompatActivity() {
     private lateinit var btnOrderWard: Button
     private var wardId: Long = -1
 
-    // singleton container for repositories and services - now order survivies navigation while app is running
-    /*object AppContainer {
-        val dailyOrderRepository = MockDailyOrderRepository()
-        val dailyOrderService = DailyOrderService(dailyOrderRepository)
-    }*/
-    // -> hef núna í sér skrá
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,8 +58,6 @@ class PatientListActivity : AppCompatActivity() {
         )
 
         recyclerView.adapter = adapter
-
-        //wardId = intent.getLongExtra("WARD_ID", -1)
 
         observe()
 
