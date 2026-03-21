@@ -36,6 +36,11 @@ interface RemoteApiService {
         @Body request: LoginRequest
     ): Ward
 
+    @POST("wards/signUp")
+    suspend fun signUp(
+        @Body request: LoginRequest
+    ): Ward
+
     @POST("wards/{id}/order")
     suspend fun orderWard(
         @Path("id") wardId: Long

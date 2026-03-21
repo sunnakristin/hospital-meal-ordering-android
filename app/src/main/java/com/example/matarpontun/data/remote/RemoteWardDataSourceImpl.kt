@@ -19,4 +19,20 @@ class RemoteWardDataSourceImpl(
 
         return api.login(request)
     }
+
+    override suspend fun createAccount(
+        wardName: String,
+        password: String
+    ): Ward? {
+        val request = LoginRequest(
+            wardName = wardName,
+            password = password
+        )
+
+        return try {
+            api.signUp(request)
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

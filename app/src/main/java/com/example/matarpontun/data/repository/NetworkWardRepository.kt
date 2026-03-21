@@ -11,4 +11,8 @@ class NetworkWardRepository(
     override suspend fun login(wardName: String, password: String): Ward? {
         return remoteDataSource.login(wardName, password)
     }
+
+    override suspend fun createAccount(wardName: String, password: String): Ward? {
+        return remoteDataSource.createAccount(wardName, password)
+    }
 }
