@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="64dp">
-
 
     <TextView
         android:layout_width="wrap_content"
@@ -21,8 +19,7 @@
         android:autofillHints="username"
         android:hint="@string/ward_name"
         android:inputType="text"
-        android:minHeight="48dp"
-        />
+        android:minHeight="48dp" />
 
     <EditText
         android:id="@+id/editPassword"
@@ -32,9 +29,7 @@
         android:autofillHints="password"
         android:hint="@string/password"
         android:inputType="textPassword"
-        android:minHeight="48dp"
-        />
-
+        android:minHeight="48dp" />
 
     <Button
         android:id="@+id/buttonLogin"
@@ -42,9 +37,16 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="@string/login"
-        android:minHeight="48dp"
-        android:maxWidth="320dp"
-        />
+        android:minHeight="48dp" />
+
+    <Button
+        android:id="@+id/buttonCreateAccount"
+        style="?attr/borderlessButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/create_account"
+        android:minHeight="48dp" />
 
     <ProgressBar
         android:id="@+id/progressBar"

@@ -1,6 +1,5 @@
 package com.example.matarpontun.ui.login
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -21,13 +20,13 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var etWardName: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
+    private lateinit var btnCreateAccount: Button
     private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // now we use network service
         viewModel = LoginViewModel(AppContainer.wardService)
 
         initViews()
@@ -39,6 +38,7 @@ class LoginActivity : AppCompatActivity() {
         etWardName = findViewById(R.id.editWardName)
         etPassword = findViewById(R.id.editPassword)
         btnLogin = findViewById(R.id.buttonLogin)
+        btnCreateAccount = findViewById(R.id.buttonCreateAccount)
         progressBar = findViewById(R.id.progressBar)
     }
 
@@ -47,10 +47,21 @@ class LoginActivity : AppCompatActivity() {
             val wardName = etWardName.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
-            // Store credentials so patient endpoints that require WardDTO can use them
             AppContainer.currentLoginRequest = LoginRequest(wardName, password)
-
             viewModel.login(wardName, password)
+        }
+
+        btnCreateAccount.setOnClickListener {
+            val wardName = etWardName.text.toString().trim()
+            val password = etPassword.text.toString().trim()
+
+            if (wardName.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, R.string.error_empty_fields, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            AppContainer.currentLoginRequest = LoginRequest(wardName, password)
+            viewModel.createAccount(wardName, password)
         }
     }
 
@@ -58,35 +69,31 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 when (state) {
-
                     is LoginUiState.Idle -> {
                         progressBar.visibility = View.GONE
-                        btnLogin.isEnabled = true
+                        setButtonsEnabled(true)
                     }
 
                     is LoginUiState.Loading -> {
                         progressBar.visibility = View.VISIBLE
-                        btnLogin.isEnabled = false
+                        setButtonsEnabled(false)
                     }
 
                     is LoginUiState.Success -> {
-
                         Log.d("LOGIN", "Ward id from backend = ${state.ward.id}")
-
                         progressBar.visibility = View.GONE
-                        btnLogin.isEnabled = true
+                        setButtonsEnabled(true)
 
                         val intent = Intent(this@LoginActivity, WardActivity::class.java)
                         intent.putExtra("WARD_NAME", state.ward.wardName)
                         intent.putExtra("WARD_ID", state.ward.id)
                         startActivity(intent)
                         finish()
-
                     }
 
                     is LoginUiState.Error -> {
                         progressBar.visibility = View.GONE
-                        btnLogin.isEnabled = true
+                        setButtonsEnabled(true)
 
                         Toast.makeText(
                             this@LoginActivity,
@@ -97,5 +104,10 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun setButtonsEnabled(enabled: Boolean) {
+        btnLogin.isEnabled = enabled
+        btnCreateAccount.isEnabled = enabled
     }
 }
