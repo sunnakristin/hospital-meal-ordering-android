@@ -40,4 +40,34 @@ class WardService(
             Result.failure(e)
         }
     }
+
+    suspend fun createAccount(
+        wardName: String,
+        password: String
+    ): Result<Ward> {
+        if (wardName.isBlank()) {
+            return Result.failure(
+                IllegalArgumentException("Ward name cannot be empty")
+            )
+        }
+
+        if (password.isBlank()) {
+            return Result.failure(
+                IllegalArgumentException("Password cannot be empty")
+            )
+        }
+
+        return try {
+            val ward = wardRepository.createAccount(wardName, password)
+            if (ward != null) {
+                Result.success(ward)
+            } else {
+                Result.failure(
+                    IllegalArgumentException("Ward name already exists or creation failed")
+                )
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
