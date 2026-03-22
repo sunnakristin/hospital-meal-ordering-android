@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.matarpontun.domain.model.DailyOrder
 import com.example.matarpontun.domain.model.Patient
+import com.example.matarpontun.AppContainer
 import com.example.matarpontun.domain.service.DailyOrderService
 import com.example.matarpontun.domain.service.PatientService
 import kotlinx.coroutines.flow.*
@@ -156,7 +157,7 @@ class PatientListViewModel(
 
         val canOrderWard = rows.any { !it.hasOrder }
 
-        _uiState.value = PatientListUiState.Success(rows, canOrderWard)    }
+        _uiState.value = PatientListUiState.Success(rows, canOrderWard, AppContainer.isOffline)    }
 
     sealed class PatientListEvent {
         data class ShowToast(val message: String) : PatientListEvent()
@@ -170,7 +171,8 @@ class PatientListViewModel(
 
         data class Success(
             val rows: List<PatientRowUi>,
-            val canOrderWard: Boolean
+            val canOrderWard: Boolean,
+            val isOffline: Boolean = false
         ) : PatientListUiState()
 
         data class Error(

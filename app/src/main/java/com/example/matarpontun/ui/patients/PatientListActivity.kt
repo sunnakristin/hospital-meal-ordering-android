@@ -3,6 +3,7 @@ package com.example.matarpontun.ui.patients
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.widget.ProgressBar
@@ -20,6 +21,7 @@ class PatientListActivity : AppCompatActivity() {
     private lateinit var viewModel: PatientListViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
+    private lateinit var offlineBanner: TextView
     private lateinit var adapter: PatientListAdapter
     private lateinit var btnOrderWard: Button
     private var wardId: Long = -1
@@ -33,6 +35,7 @@ class PatientListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_patient_list)
 
         btnOrderWard = findViewById(R.id.btnOrderWard)
+        offlineBanner = findViewById(R.id.offlineBanner)
         val btnBack = findViewById<Button>(R.id.btnBack)
 
         viewModel = ViewModelProvider(
@@ -99,6 +102,7 @@ class PatientListActivity : AppCompatActivity() {
                         progressBar.visibility = View.GONE
                         adapter.submitRows(state.rows)
                         btnOrderWard.isEnabled = state.canOrderWard
+                        offlineBanner.visibility = if (state.isOffline) View.VISIBLE else View.GONE
                     }
 
                     is PatientListUiState.Error -> {

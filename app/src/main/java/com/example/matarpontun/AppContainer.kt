@@ -3,6 +3,7 @@ package com.example.matarpontun
 import android.content.Context
 import com.example.matarpontun.data.local.AppDatabase
 import com.example.matarpontun.data.local.LocalDailyOrderDataSourceImpl
+import com.example.matarpontun.data.local.LocalPatientDataSourceImpl
 import com.example.matarpontun.data.local.WardSessionDataStore
 import com.example.matarpontun.data.network.RetrofitClient
 import com.example.matarpontun.data.remote.RemoteApiService
@@ -10,7 +11,7 @@ import com.example.matarpontun.data.remote.RemoteDailyOrderDataSourceImpl
 import com.example.matarpontun.data.remote.RemotePatientDataSourceImpl
 import com.example.matarpontun.data.remote.RemoteWardDataSourceImpl
 import com.example.matarpontun.data.remote.dto.LoginRequest
-import com.example.matarpontun.data.repository.NetworkPatientRepository
+import com.example.matarpontun.data.repository.OfflineFirstPatientRepository
 import com.example.matarpontun.data.repository.NetworkWardRepository
 import com.example.matarpontun.data.repository.OfflineFirstDailyOrderRepository
 import com.example.matarpontun.domain.repository.DailyOrderRepository
@@ -31,6 +32,7 @@ object AppContainer {
     // UC8 endpoints that require WardDTO (LoginRequest) in the body.
     var currentLoginRequest: LoginRequest? = null
     var currentWardId: Long = -1L
+    var isOffline: Boolean = false
 
     // --- Session (DataStore) ---
     lateinit var wardSessionDataStore: WardSessionDataStore
@@ -42,6 +44,7 @@ object AppContainer {
         RemoteDailyOrderDataSourceImpl(api)
 
     private lateinit var localDailyOrderDataSource: LocalDailyOrderDataSourceImpl
+    private lateinit var localPatientDataSource: LocalPatientDataSourceImpl
 
     val dailyOrderRepository: DailyOrderRepository by lazy {
         OfflineFirstDailyOrderRepository(
@@ -60,11 +63,17 @@ object AppContainer {
     private val remotePatientDataSource =
         RemotePatientDataSourceImpl(api)
 
-    val patientRepository: PatientRepository =
-        NetworkPatientRepository(remotePatientDataSource)
+    val patientRepository: PatientRepository by lazy {
+        OfflineFirstPatientRepository(
+            remoteDataSource = remotePatientDataSource,
+            localDataSource = localPatientDataSource,
+            wardId = { currentWardId }
+        )
+    }
 
-    val patientService =
+    val patientService: PatientService by lazy {
         PatientService(patientRepository)
+    }
 
     // --- Ward ---
 
@@ -83,6 +92,7 @@ object AppContainer {
     fun init(context: Context) {
         val db = AppDatabase.getInstance(context)
         localDailyOrderDataSource = LocalDailyOrderDataSourceImpl(db.dailyOrderDao())
+        localPatientDataSource = LocalPatientDataSourceImpl(db.patientDao())
         wardSessionDataStore = WardSessionDataStore(context)
     }
 }
