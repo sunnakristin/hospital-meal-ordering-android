@@ -84,6 +84,16 @@ class LoginActivity : AppCompatActivity() {
                         progressBar.visibility = View.GONE
                         setButtonsEnabled(true)
 
+                        // Persist ward id for offline-first repository and session store
+                        AppContainer.currentWardId = state.ward.id
+                        launch {
+                            AppContainer.wardSessionDataStore.saveSession(
+                                wardId = state.ward.id,
+                                wardName = state.ward.wardName,
+                                password = etPassword.text.toString().trim()
+                            )
+                        }
+
                         val intent = Intent(this@LoginActivity, WardActivity::class.java)
                         intent.putExtra("WARD_NAME", state.ward.wardName)
                         intent.putExtra("WARD_ID", state.ward.id)

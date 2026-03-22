@@ -1,14 +1,18 @@
 package com.example.matarpontun
 
+import android.content.Context
+import com.example.matarpontun.data.local.AppDatabase
+import com.example.matarpontun.data.local.LocalDailyOrderDataSourceImpl
+import com.example.matarpontun.data.local.WardSessionDataStore
 import com.example.matarpontun.data.network.RetrofitClient
 import com.example.matarpontun.data.remote.RemoteApiService
 import com.example.matarpontun.data.remote.RemoteDailyOrderDataSourceImpl
 import com.example.matarpontun.data.remote.RemotePatientDataSourceImpl
 import com.example.matarpontun.data.remote.RemoteWardDataSourceImpl
 import com.example.matarpontun.data.remote.dto.LoginRequest
-import com.example.matarpontun.data.repository.NetworkDailyOrderRepository
 import com.example.matarpontun.data.repository.NetworkPatientRepository
 import com.example.matarpontun.data.repository.NetworkWardRepository
+import com.example.matarpontun.data.repository.OfflineFirstDailyOrderRepository
 import com.example.matarpontun.domain.repository.DailyOrderRepository
 import com.example.matarpontun.domain.repository.PatientRepository
 import com.example.matarpontun.domain.repository.WardRepository
@@ -26,17 +30,30 @@ object AppContainer {
     // Holds the last successful ward login so we can call
     // UC8 endpoints that require WardDTO (LoginRequest) in the body.
     var currentLoginRequest: LoginRequest? = null
+    var currentWardId: Long = -1L
+
+    // --- Session (DataStore) ---
+    lateinit var wardSessionDataStore: WardSessionDataStore
+        private set
 
     // --- Daily Orders ---
 
     private val remoteDailyOrderDataSource =
         RemoteDailyOrderDataSourceImpl(api)
 
-    val dailyOrderRepository: DailyOrderRepository =
-        NetworkDailyOrderRepository(remoteDailyOrderDataSource)
+    private lateinit var localDailyOrderDataSource: LocalDailyOrderDataSourceImpl
 
-    val dailyOrderService: DailyOrderService =
+    val dailyOrderRepository: DailyOrderRepository by lazy {
+        OfflineFirstDailyOrderRepository(
+            remoteDataSource = remoteDailyOrderDataSource,
+            localDataSource = localDailyOrderDataSource,
+            wardId = { currentWardId }
+        )
+    }
+
+    val dailyOrderService: DailyOrderService by lazy {
         DailyOrderService(dailyOrderRepository)
+    }
 
     // --- Patients ---
 
@@ -50,6 +67,7 @@ object AppContainer {
         PatientService(patientRepository)
 
     // --- Ward ---
+
     private val remoteWardDataSource =
         RemoteWardDataSourceImpl(api)
 
@@ -58,4 +76,13 @@ object AppContainer {
 
     val wardService =
         WardService(wardRepository)
+
+    /**
+     * Must be called once in MatarpontunApp.onCreate() before any Activity starts.
+     */
+    fun init(context: Context) {
+        val db = AppDatabase.getInstance(context)
+        localDailyOrderDataSource = LocalDailyOrderDataSourceImpl(db.dailyOrderDao())
+        wardSessionDataStore = WardSessionDataStore(context)
+    }
 }
