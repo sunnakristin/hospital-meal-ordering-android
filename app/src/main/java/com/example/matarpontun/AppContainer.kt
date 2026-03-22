@@ -25,7 +25,7 @@ object AppContainer {
 
     private val retrofit = RetrofitClient.instance
 
-    private val api: RemoteApiService =
+    val api: RemoteApiService =
         retrofit.create(RemoteApiService::class.java)
 
     // Holds the last successful ward login so we can call

@@ -74,6 +74,7 @@ private fun DailyOrderEntity.toDomain(): DailyOrder {
         name = patientName,
         bedNumber = 0,
         room = "",
+        roomQrCode = null,
         foodType = foodType,
         restrictions = emptyList(),
         status = status

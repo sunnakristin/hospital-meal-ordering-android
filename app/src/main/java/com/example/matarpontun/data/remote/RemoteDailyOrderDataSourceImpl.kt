@@ -47,6 +47,7 @@ class RemoteDailyOrderDataSourceImpl(
             name = "",
             bedNumber = 0,
             room = "",
+            roomQrCode = null,
             foodType = foodType,
             restrictions = emptyList(),
             status = dto.status

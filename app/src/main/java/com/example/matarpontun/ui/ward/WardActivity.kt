@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.matarpontun.R
 import com.example.matarpontun.ui.patients.PatientListActivity
+import com.example.matarpontun.ui.scan.QrScanActivity
 
 class WardActivity : AppCompatActivity() {
     private var wardId: Long = 0
@@ -28,5 +29,8 @@ class WardActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        findViewById<Button>(R.id.btnScanQr).setOnClickListener {
+            startActivity(Intent(this, QrScanActivity::class.java))
+        }
     }
 }

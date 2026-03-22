@@ -21,6 +21,9 @@ data class PatientDto(
     @SerializedName("roomNumber")
     val roomNumber: String,
 
+    @SerializedName("roomQrCode")
+    val roomQrCode: String?,
+
     @SerializedName("foodType")
     val foodType: String,
 

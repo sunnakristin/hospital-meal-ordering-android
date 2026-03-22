@@ -17,9 +17,15 @@
 
     <Button
         android:id="@+id/btnPatients"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="View patients" />
+        android:text="View Patients"
+        android:layout_marginBottom="16dp"/>
 
+    <Button
+        android:id="@+id/btnScanQr"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Scan Room QR Code"/>
 
 </LinearLayout>

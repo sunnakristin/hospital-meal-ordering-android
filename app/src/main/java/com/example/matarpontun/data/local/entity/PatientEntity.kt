@@ -10,6 +10,7 @@ data class PatientEntity(
     val name: String,
     val bedNumber: Int,
     val room: String,
+    val roomQrCode: String?,
     val foodTypeName: String,
     val restrictions: String, // comma-separated
     val status: String,

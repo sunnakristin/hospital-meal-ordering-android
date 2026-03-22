@@ -29,12 +29,38 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="12dp"/>
 
-        <Button
-            android:id="@+id/btnOrderWard"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/order_ward"
-            android:layout_marginBottom="12dp"/>
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <Button
+                android:id="@+id/btnOrderWard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/order_ward"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnCreateRoom"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Create Room"
+                android:layout_marginEnd="8dp"/>
+
+            <ImageButton
+                android:id="@+id/btnRefresh"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_refresh"
+                android:background="#1976D2"
+                android:padding="10dp"
+                android:contentDescription="Refresh patient list"/>
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerPatients"

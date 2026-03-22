@@ -22,6 +22,7 @@ class RemotePatientDataSourceImpl(
                 name = p.name,
                 bedNumber = p.bedNumber,
                 room = p.roomNumber,
+                roomQrCode = p.roomQrCode,
                 foodType = FoodType(typeName = p.foodType),
                 restrictions = p.restrictions,
                 status = p.status ?: "N/A",
