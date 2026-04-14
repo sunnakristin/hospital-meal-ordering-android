@@ -1,5 +1,6 @@
 package com.example.matarpontun.domain.service
 
+import com.example.matarpontun.data.remote.dto.WardOrderResponseDto
 import com.example.matarpontun.domain.model.DailyOrder
 import com.example.matarpontun.domain.model.FoodType
 import com.example.matarpontun.domain.repository.DailyOrderRepository
@@ -22,9 +23,7 @@ class DailyOrderService(
         return repository.orderForPatient(patientId, foodType)
     }
 
-    suspend fun orderForWard(
-        wardId: Long
-    ):  Result<Unit> {
+    suspend fun orderForWard(wardId: Long): Result<WardOrderResponseDto> {
         return repository.orderForWard(wardId)
     }
 }

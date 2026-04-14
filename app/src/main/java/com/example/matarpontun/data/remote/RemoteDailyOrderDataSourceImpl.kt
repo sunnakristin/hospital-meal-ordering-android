@@ -4,6 +4,7 @@ package com.example.matarpontun.data.remote
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.matarpontun.data.remote.dto.OrderRequest
+import com.example.matarpontun.data.remote.dto.WardOrderResponseDto
 import com.example.matarpontun.domain.model.*
 import java.time.LocalDate
 
@@ -53,6 +54,15 @@ class RemoteDailyOrderDataSourceImpl(
             status = dto.status
         )
 
+        val conflicts = dto.conflicts?.map { c ->
+            ConflictInfo(
+                slot = c.slot,
+                originalMeal = c.originalMeal,
+                matchedRestriction = c.matchedRestriction,
+                replacementMeal = c.replacementMeal
+            )
+        } ?: emptyList()
+
         return DailyOrder(
             id = 0L,
             orderDate = date,
@@ -63,11 +73,12 @@ class RemoteDailyOrderDataSourceImpl(
             lunch = menu.lunch,
             afternoonSnack = menu.afternoonSnack,
             dinner = menu.dinner,
-            nightSnack = menu.nightSnack
+            nightSnack = menu.nightSnack,
+            conflicts = conflicts
         )
     }
 
-    override suspend fun orderForWard(wardId: Long) {
-        api.orderWard(wardId)
+    override suspend fun orderForWard(wardId: Long): WardOrderResponseDto {
+        return api.orderWard(wardId)
     }
 }

@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.matarpontun.data.local.LocalDailyOrderDataSource
 import com.example.matarpontun.data.remote.RemoteDailyOrderDataSource
+import com.example.matarpontun.data.remote.dto.WardOrderResponseDto
 import com.example.matarpontun.domain.model.DailyOrder
 import com.example.matarpontun.domain.model.FoodType
 import com.example.matarpontun.domain.repository.DailyOrderRepository
@@ -38,10 +39,9 @@ class OfflineFirstDailyOrderRepository(
         }
     }
 
-    override suspend fun orderForWard(wardId: Long): Result<Unit> {
+    override suspend fun orderForWard(wardId: Long): Result<WardOrderResponseDto> {
         return try {
-            remoteDataSource.orderForWard(wardId)
-            Result.success(Unit)
+            Result.success(remoteDataSource.orderForWard(wardId))
         } catch (e: Exception) {
             Result.failure(e)
         }

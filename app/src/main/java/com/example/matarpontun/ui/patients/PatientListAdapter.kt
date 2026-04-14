@@ -9,6 +9,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.matarpontun.R
 
+/**
+ * RecyclerView adapter for the patient list screen.
+ * Renders two view types: [RoomHeaderViewHolder] for room groups and [PatientViewHolder] for patients.
+ */
 class PatientListAdapter(
     private val onOrderClicked: (Long) -> Unit,
     private val onToggleClicked: (Long) -> Unit,
@@ -18,6 +22,7 @@ class PatientListAdapter(
 
     private var items: List<PatientListViewModel.PatientListItem> = emptyList()
 
+    /** Replaces the current item list and triggers a full rebind. */
     fun submitItems(newItems: List<PatientListViewModel.PatientListItem>) {
         items = newItems
         notifyDataSetChanged()
@@ -99,13 +104,13 @@ class PatientListAdapter(
             btnOrder.isEnabled = row.primaryButtonEnabled
             btnOrder.setOnClickListener { if (row.primaryButtonEnabled) onOrderClicked(row.patientId) }
 
-            btnToggle.isEnabled = row.hasOrder
+            btnToggle.isEnabled = row.hasOrder && !row.hasConflict
             btnToggle.text = if (row.expanded) "Hide Details ▲" else "Show Details ▼"
-            btnToggle.setOnClickListener { if (row.hasOrder) onToggleClicked(row.patientId) }
+            btnToggle.setOnClickListener { if (row.hasOrder && !row.hasConflict) onToggleClicked(row.patientId) }
 
             btnEdit.setOnClickListener { onEditClicked(row) }
 
-            detailsContainer.visibility = if (row.expanded && row.hasOrder) View.VISIBLE else View.GONE
+            detailsContainer.visibility = if (row.expanded && row.hasOrder && !row.hasConflict) View.VISIBLE else View.GONE
 
             tvRestrictions.text = if (row.restrictions.isNotEmpty())
                 "Restrictions: ${row.restrictions.joinToString(", ")}"

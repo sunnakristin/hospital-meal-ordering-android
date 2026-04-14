@@ -37,6 +37,9 @@
         <activity
             android:name=".ui.scan.QrScanActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.menu.MenuActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

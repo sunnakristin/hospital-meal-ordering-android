@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="8dp">
 
             <Button
                 android:id="@+id/btnOrderWard"
@@ -62,6 +62,32 @@
 
         </LinearLayout>
 
+        <!-- View controls row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/btnToggleView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="⊞ Box View"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/btnViewMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="View Menu"
+                android:layout_marginStart="4dp"/>
+
+        </LinearLayout>
+
+        <!-- List view -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerPatients"
             android:layout_width="match_parent"
@@ -70,6 +96,13 @@
             android:clipToPadding="false"
             android:scrollbars="vertical"
             android:fadeScrollbars="false"/>
+
+        <!-- Box view -->
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/composeBoxView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
     </LinearLayout>
 
     <!-- Overlay back button in bottom-left -->

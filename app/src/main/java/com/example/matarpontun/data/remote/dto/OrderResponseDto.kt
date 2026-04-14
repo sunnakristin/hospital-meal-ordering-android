@@ -7,7 +7,17 @@ data class OrderResponseDto(
     val meals: OrderMealsDto,
     val patientId: Long,
     val foodType: String,
-    val orderDate: String
+    val orderDate: String,
+    /** Populated when the order status is AUTO CHANGED or NEEDS MANUAL CHANGE. */
+    val conflicts: List<ConflictDto>? = null
+)
+
+/** A single meal-slot conflict returned by the order endpoint. */
+data class ConflictDto(
+    val slot: String,
+    val originalMeal: String,
+    val matchedRestriction: String,
+    val replacementMeal: String?  // null = manual change required
 )
 
 data class OrderMealsDto(

@@ -20,7 +20,6 @@ import com.example.matarpontun.domain.repository.WardRepository
 import com.example.matarpontun.domain.service.DailyOrderService
 import com.example.matarpontun.domain.service.PatientService
 import com.example.matarpontun.domain.service.WardService
-
 object AppContainer {
 
     private val retrofit = RetrofitClient.instance

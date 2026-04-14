@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/** ViewModel for the login screen. Delegates auth to [WardService] and exposes [uiState]. */
 class LoginViewModel(
     private val wardService: WardService
 ) : ViewModel() {
@@ -15,6 +16,7 @@ class LoginViewModel(
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState
 
+    /** Attempts to sign in with [wardName] and [password]. Emits [LoginUiState.Success] on success. */
     fun login(wardName: String, password: String) {
         _uiState.value = LoginUiState.Loading
 
@@ -34,6 +36,7 @@ class LoginViewModel(
         }
     }
 
+    /** Registers a new ward account with [wardName] and [password]. */
     fun createAccount(wardName: String, password: String) {
         _uiState.value = LoginUiState.Loading
 
