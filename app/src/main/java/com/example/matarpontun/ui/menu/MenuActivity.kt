@@ -10,6 +10,11 @@ import com.example.matarpontun.R
 import androidx.compose.ui.platform.ComposeView
 import com.example.matarpontun.ui.theme.MatarpontunTheme
 
+/**
+ * Displays today's menu for each food type (not part of the original user stories — added feature).
+ * The entire content area is a Compose [MenuScreen] hosted inside a [ComposeView].
+ * [MenuViewModel] handles loading food types and menus; this activity only wires the back button.
+ */
 class MenuActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MenuViewModel

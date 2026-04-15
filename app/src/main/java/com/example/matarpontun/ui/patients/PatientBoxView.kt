@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Colour palette for the box view cards and dialog
 private val BoxDialogBg = Color(0xFF7C6FCD)
 private val BoxCapacityBg = Color(0xFF37474F)
 private val BoxCardTop = Color(0xFF607D8B)
@@ -44,6 +45,14 @@ private val BoxAccentBorder = Color(0xFF90A4AE)
 private val BoxOccupiedBedBorder = Color(0x661565C0)
 private val BoxEmptyBedColor = Color(0x9978909C)
 
+/**
+ * Alternative visual layout for the patient list (added feature, not in original user stories).
+ * Groups patients by room and renders each room as a card containing a bed grid.
+ * Each occupied bed shows the patient's initials and is tappable to reveal a details dialog.
+ * Empty beds within a room's capacity are shown as greyed-out circles.
+ *
+ * Receives the same [items] list as the RecyclerView adapter so both views share one data source.
+ */
 @Composable
 fun PatientBoxView(items: List<PatientListViewModel.PatientListItem>) {
     data class RoomEntry(val name: String, val patients: List<PatientListViewModel.PatientRowUi>)
@@ -108,6 +117,11 @@ fun PatientBoxView(items: List<PatientListViewModel.PatientListItem>) {
     }
 }
 
+/**
+ * Card representing a single room in the box view.
+ * Calculates bed capacity from the highest bed number among the patients,
+ * then lays beds out in a 2-column grid — occupied beds show initials, empty ones are grey.
+ */
 @Composable
 private fun BoxRoomCard(
     roomName: String,

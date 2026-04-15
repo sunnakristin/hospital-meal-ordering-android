@@ -8,6 +8,11 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
 
+/**
+ * Transparent overlay drawn on top of the camera preview in [QrScanActivity].
+ * Draws a green rectangle around the detected QR code bounding box.
+ * Call [setRect] with null to clear the rectangle when no code is visible.
+ */
 class QrOverlayView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
 
     private val paint = Paint().apply {
@@ -18,6 +23,7 @@ class QrOverlayView(context: Context, attrs: AttributeSet? = null) : View(contex
 
     private var rect: RectF? = null
 
+    /** Updates the bounding rectangle and triggers a redraw. Pass null to clear it. */
     fun setRect(r: RectF?) {
         rect = r
         invalidate()

@@ -7,6 +7,11 @@ import com.example.matarpontun.domain.model.DailyOrder
 import com.example.matarpontun.domain.model.FoodType
 import com.example.matarpontun.domain.repository.DailyOrderRepository
 
+/**
+ * Network-only implementation of [DailyOrderRepository].
+ * Wraps remote calls in [Result] so callers receive structured success/failure
+ * without having to handle raw exceptions.
+ */
 class NetworkDailyOrderRepository(
     private val remoteDataSource: RemoteDailyOrderDataSource
 ) : DailyOrderRepository {

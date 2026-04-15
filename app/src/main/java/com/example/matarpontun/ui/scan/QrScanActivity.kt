@@ -29,9 +29,19 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 import kotlin.math.max
 
+/**
+ * US11 — Camera-based QR code scanner for room lookup.
+ *
+ * Uses CameraX for live preview and ML Kit for barcode detection.
+ * When a QR code with the prefix "ROOM-" is detected, it calls the backend to look up
+ * the room and navigates to [PatientListActivity] filtered to that room.
+ *
+ * [alreadyScanned] prevents duplicate API calls when a code stays in frame.
+ */
 @ExperimentalGetImage
 class QrScanActivity : AppCompatActivity() {
 
+    /** Guards against processing the same QR code multiple times while it stays in frame. */
     private var alreadyScanned = false
     private lateinit var previewView: PreviewView
     private lateinit var overlay: QrOverlayView
@@ -57,6 +67,7 @@ class QrScanActivity : AppCompatActivity() {
         requestPermission.launch(android.Manifest.permission.CAMERA)
     }
 
+    /** Initialises CameraX with a live preview and an image analysis use case for barcode detection. */
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         val analysisExecutor = Executors.newSingleThreadExecutor()
@@ -69,6 +80,7 @@ class QrScanActivity : AppCompatActivity() {
 
             val barcodeScanner = BarcodeScanning.getClient()
 
+            // STRATEGY_KEEP_ONLY_LATEST drops frames when the analyser is busy to avoid backlog
             val imageAnalysis = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
@@ -78,6 +90,7 @@ class QrScanActivity : AppCompatActivity() {
                 if (mediaImage != null && !alreadyScanned) {
                     val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
 
+                    // Map bounding box from image coordinates to PreviewView coordinates
                     val rotation = imageProxy.imageInfo.rotationDegrees
                     val imgW = if (rotation == 90 || rotation == 270) imageProxy.height.toFloat()
                                else imageProxy.width.toFloat()
@@ -89,6 +102,7 @@ class QrScanActivity : AppCompatActivity() {
                             val barcode = barcodes.firstOrNull { it.format == Barcode.FORMAT_QR_CODE }
                             val qrValue = barcode?.rawValue
 
+                            // Draw green box around detected QR code
                             val boundingBox = barcode?.boundingBox
                             if (boundingBox != null) {
                                 val viewW = previewView.width.toFloat()
@@ -107,6 +121,7 @@ class QrScanActivity : AppCompatActivity() {
                                 runOnUiThread { overlay.setRect(null) }
                             }
 
+                            // Only handle codes that look like room QR codes
                             if (qrValue != null) {
                                 val trimmed = qrValue.trim()
                                 setDebugText(trimmed)
@@ -137,6 +152,10 @@ class QrScanActivity : AppCompatActivity() {
         runOnUiThread { findViewById<TextView>(R.id.tvScannedCode).text = text }
     }
 
+    /**
+     * Looks up the room on the backend by its QR code, then navigates to [PatientListActivity]
+     * with a room filter applied. Resets [alreadyScanned] on failure so the user can try again.
+     */
     private fun handleQrCode(qrCode: String) {
         val url = "wards/rooms/qr/$qrCode"
         setDebugText("$qrCode\nCalling: $url")
@@ -147,12 +166,12 @@ class QrScanActivity : AppCompatActivity() {
                 }
                 val intent = Intent(this@QrScanActivity, PatientListActivity::class.java).apply {
                     putExtra("WARD_ID", room.wardId)
-                    putExtra("ROOM_FILTER", room.roomNumber)
+                    putExtra("ROOM_FILTER", room.roomNumber)  // filters list to this room only
                 }
                 startActivity(intent)
                 finish()
             } catch (e: Exception) {
-                alreadyScanned = false
+                alreadyScanned = false  // allow retry after error
                 setDebugText("$qrCode\nError: ${e.message}")
             }
         }

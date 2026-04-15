@@ -13,6 +13,12 @@ import com.example.matarpontun.R
 import com.example.matarpontun.ui.ward.WardActivity
 import kotlinx.coroutines.launch
 
+/**
+ * Entry point of the app. Handles ward sign-in (US1) and account creation (US13).
+ *
+ * On successful login, saves the ward session to [AppContainer] and [WardSessionDataStore]
+ * then navigates to [WardActivity], finishing itself so back-press doesn't return here.
+ */
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var viewModel: LoginViewModel
@@ -47,6 +53,7 @@ class LoginActivity : AppCompatActivity() {
             val wardName = etWardName.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
+            // Store credentials in AppContainer so patient fetch (UC8) can reuse them
             AppContainer.currentLoginRequest = LoginRequest(wardName, password)
             viewModel.login(wardName, password)
         }
@@ -84,7 +91,7 @@ class LoginActivity : AppCompatActivity() {
                         progressBar.visibility = View.GONE
                         setButtonsEnabled(true)
 
-                        // Persist ward id for offline-first repository and session store
+                        // Persist ward id for offline-first repositories and session restore
                         AppContainer.currentWardId = state.ward.id
                         launch {
                             AppContainer.wardSessionDataStore.saveSession(
@@ -116,6 +123,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    /** Disables both buttons while a network request is in progress to prevent duplicate submissions. */
     private fun setButtonsEnabled(enabled: Boolean) {
         btnLogin.isEnabled = enabled
         btnCreateAccount.isEnabled = enabled

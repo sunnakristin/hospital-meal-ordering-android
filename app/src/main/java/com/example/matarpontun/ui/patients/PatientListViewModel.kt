@@ -285,6 +285,7 @@ class PatientListViewModel(
                     else -> "Ready to order"
                 }
                 val needsManualChange = patient.status == "NEEDS MANUAL CHANGE"
+                val autoChanged = patient.status == "AUTO CHANGED"
                 val row = PatientListItem.PatientRow(PatientRowUi(
                     patientId = patient.patientId,
                     name = patient.name,
@@ -293,6 +294,7 @@ class PatientListViewModel(
                     foodTypeName = patient.foodType.typeName,
                     hasOrder = hasOrder,
                     hasConflict = needsManualChange,
+                    isAutoChanged = autoChanged,
                     statusText = statusText,
                     primaryButtonText = when {
                         needsManualChange -> "CONFLICT"
@@ -362,6 +364,7 @@ class PatientListViewModel(
         val foodTypeName: String,
         val hasOrder: Boolean,
         val hasConflict: Boolean,
+        val isAutoChanged: Boolean,
         val statusText: String,
         val primaryButtonText: String,
         val primaryButtonEnabled: Boolean,

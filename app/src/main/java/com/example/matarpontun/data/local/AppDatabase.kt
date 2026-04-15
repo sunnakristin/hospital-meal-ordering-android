@@ -9,6 +9,14 @@ import com.example.matarpontun.data.local.dao.PatientDao
 import com.example.matarpontun.data.local.entity.DailyOrderEntity
 import com.example.matarpontun.data.local.entity.PatientEntity
 
+/**
+ * Room database for the app. Contains two tables:
+ * - [PatientEntity] — cached patient list per ward for offline access
+ * - [DailyOrderEntity] — cached daily orders per ward/patient/date
+ *
+ * Uses [fallbackToDestructiveMigration] so schema changes during development
+ * wipe the cache rather than requiring explicit migration scripts.
+ */
 @Database(entities = [DailyOrderEntity::class, PatientEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -18,6 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
 
+        /** Returns the singleton database instance, creating it if necessary. Thread-safe. */
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(

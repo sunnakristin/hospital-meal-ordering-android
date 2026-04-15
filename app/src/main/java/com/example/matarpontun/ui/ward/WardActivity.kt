@@ -6,8 +6,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.ExperimentalGetImage
 import androidx.lifecycle.lifecycleScope
 import com.example.matarpontun.AppContainer
 import com.example.matarpontun.R
@@ -18,10 +20,18 @@ import com.example.matarpontun.ui.patients.PatientListActivity
 import com.example.matarpontun.ui.scan.QrScanActivity
 import kotlinx.coroutines.launch
 
+/**
+ * Home screen shown after a successful login. Acts as a navigation hub to:
+ * - Patient list for the current ward
+ * - QR code scanner (US11)
+ * - Ward settings (update name/password, US5)
+ * - Logout (clears session and returns to [LoginActivity])
+ */
 class WardActivity : AppCompatActivity() {
     private var wardId: Long = 0
     private lateinit var tvWelcome: TextView
 
+    @OptIn(ExperimentalGetImage::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ward)
@@ -38,19 +48,23 @@ class WardActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // US11 — scan a room QR code to jump directly to that room's patient list
         findViewById<Button>(R.id.btnScanQr).setOnClickListener {
             startActivity(Intent(this, QrScanActivity::class.java))
         }
 
+        // US5 — update ward name and password
         findViewById<Button>(R.id.btnWardSettings).setOnClickListener {
             showWardSettingsDialog()
         }
 
+        // Clear session state and navigate back to login
         findViewById<Button>(R.id.btnLogout).setOnClickListener {
             lifecycleScope.launch {
                 AppContainer.wardSessionDataStore.clearSession()
                 AppContainer.currentLoginRequest = null
                 val intent = Intent(this@WardActivity, LoginActivity::class.java)
+                // Clear the back stack so pressing back does not return to this screen
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             }
@@ -87,6 +101,7 @@ class WardActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 AppContainer.api.updateWard(wardId, WardUpdateRequest(newName, newPassword))
+                // Keep in-memory session and DataStore in sync with the new credentials
                 AppContainer.currentLoginRequest = LoginRequest(newName, newPassword)
                 AppContainer.wardSessionDataStore.saveSession(wardId, newName, newPassword)
                 tvWelcome.text = "Welcome $newName"

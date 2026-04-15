@@ -96,6 +96,13 @@ class PatientListAdapter(
         val tvNightSnack: TextView = view.findViewById(R.id.tvNightSnack)
 
         fun bind(row: PatientListViewModel.PatientRowUi) {
+            itemView.setBackgroundColor(when {
+                row.hasConflict   -> 0xFFFFCDD2.toInt() // light red — manual change required
+                row.isAutoChanged -> 0xFFBBDEFB.toInt() // light blue — auto changed
+                row.hasOrder      -> 0xFFC8E6C9.toInt() // light green — ordered
+                else              -> android.graphics.Color.TRANSPARENT
+            })
+
             tvName.text = "Bed ${row.bedNumber}: ${row.name}"
             tvFoodType.text = "Food Type: ${row.foodTypeName}"
             tvStatus.text = row.statusText

@@ -11,6 +11,10 @@ import com.example.matarpontun.domain.model.Menu
 import com.example.matarpontun.domain.model.Patient
 import java.time.LocalDate
 
+/**
+ * Room-backed implementation of [LocalDailyOrderDataSource].
+ * Converts between [DailyOrder] domain models and [DailyOrderEntity] Room entities.
+ */
 class LocalDailyOrderDataSourceImpl(
     private val dao: DailyOrderDao
 ) : LocalDailyOrderDataSource {
@@ -34,6 +38,7 @@ class LocalDailyOrderDataSourceImpl(
     }
 }
 
+/** Maps a [DailyOrder] domain model to a flat [DailyOrderEntity] for Room storage. */
 @RequiresApi(Build.VERSION_CODES.O)
 private fun DailyOrder.toEntity(wardId: Long) = DailyOrderEntity(
     id = 0,
@@ -50,6 +55,7 @@ private fun DailyOrder.toEntity(wardId: Long) = DailyOrderEntity(
     nightSnackName = nightSnack.name
 )
 
+/** Reconstructs a [DailyOrder] domain model from a cached [DailyOrderEntity]. */
 @RequiresApi(Build.VERSION_CODES.O)
 private fun DailyOrderEntity.toDomain(): DailyOrder {
     val date = LocalDate.parse(orderDate)
@@ -69,6 +75,7 @@ private fun DailyOrderEntity.toDomain(): DailyOrder {
     val dinner = meal(dinnerName, "Dinner")
     val nightSnack = meal(nightSnackName, "Night snack")
 
+    // Minimal patient stub — cached orders only store the id and name
     val patient = Patient(
         patientId = patientId,
         name = patientName,

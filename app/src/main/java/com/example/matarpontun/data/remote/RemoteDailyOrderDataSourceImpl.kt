@@ -1,4 +1,3 @@
-// RemoteDailyOrderDataSourceImpl.kt
 package com.example.matarpontun.data.remote
 
 import android.os.Build
@@ -8,6 +7,11 @@ import com.example.matarpontun.data.remote.dto.WardOrderResponseDto
 import com.example.matarpontun.domain.model.*
 import java.time.LocalDate
 
+/**
+ * Calls the backend order endpoints and maps the raw JSON responses into
+ * [DailyOrder] domain models. Builds stub [Patient] and [Menu] objects
+ * from the response data — the full patient is already held by the ViewModel.
+ */
 class RemoteDailyOrderDataSourceImpl(
     private val api: RemoteApiService
 ) : RemoteDailyOrderDataSource {
@@ -22,6 +26,7 @@ class RemoteDailyOrderDataSourceImpl(
 
         val date = LocalDate.parse(dto.orderDate)
 
+        // Helper to build a Meal from a name and category string
         fun mealFrom(name: String, category: String): Meal =
             Meal(
                 id = 0L,
@@ -42,7 +47,7 @@ class RemoteDailyOrderDataSourceImpl(
             nightSnack = mealFrom(dto.meals.nightSnack, "Night snack")
         )
 
-        // Minimal patient – PatientListViewModel already knows the real patient
+        // Minimal stub patient — the real patient data is already in PatientListViewModel
         val patient = Patient(
             patientId = dto.patientId,
             name = "",
@@ -54,6 +59,7 @@ class RemoteDailyOrderDataSourceImpl(
             status = dto.status
         )
 
+        // Map conflict DTOs to domain ConflictInfo objects
         val conflicts = dto.conflicts?.map { c ->
             ConflictInfo(
                 slot = c.slot,
